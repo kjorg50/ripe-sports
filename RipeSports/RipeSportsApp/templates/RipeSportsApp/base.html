@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Latest AngularJS -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+		
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+		<!-- ngSanitize -->
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+		<!-- ngSanitize -->
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-cookies.js"></script>
+		<script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+		<script src="https://use.fontawesome.com/a1406c6de2.js"></script>
+		{% load static %}
+		<script src={% static "script.js" %}></script>
+		<link rel="stylesheet" href={% static "styles.css" %} type="text/css">
+		<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+	</head>
+	<body>
+		<main role='main' class="container">
+			{% block content %}{% endblock %}
+		</main>
+		<hr>
+		<footer class="bg-inverse footer container-fluid">
+			<div class="row">
+				<div class="col">
+					<a href="/termsofservice" class="text-muted">Terms of Service</a>
+				</div>
+				<div class="col">
+					<a href="/privacy" class="text-muted">Privacy Statement</a>
+				</div>
+				<div class="col">
+					  <a href="mailto:info@aeromembers.com" class="text-muted">info@aeromembers.com</a>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>

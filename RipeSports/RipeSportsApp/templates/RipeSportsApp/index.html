@@ -1,0 +1,10 @@
+{% extends "RipeSportsApp/base.html" %}
+{% block content %}
+{%verbatim%}
+<div ng-controller="indexCtrl">
+    <input type="text" ng-model="gameEntry" >
+    <button ng-click="search(gameEntry)" >Get Highlight</button>
+    Your Highlight Link: <a target="_blank" href="{{ result }}" >{{result}}</a>
+</div>
+{%endverbatim%}
+{%endblock%}
