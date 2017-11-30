@@ -2,9 +2,43 @@
 {% block content %}
 {%verbatim%}
 <div ng-controller="indexCtrl">
+<nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <a class="navbar-brand" href="/">RipeSports</a>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <button class="navbar-toggler-right navbar-toggler" type="button" data-toggle="collapse" data-target="#headerCollapseableDiv" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+            <div class="collapse navbar-collapse" id='headerCollapseableDiv'>
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a  class="nav-link" role="button" ng-click="loadGames('basketball','')">Basketball</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" role="button" ng-click="loadGames('football','')">Football</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+
+    </nav>
+
     <input type="text" ng-model="gameEntry" >
     <button ng-click="search(gameEntry)" >Get Highlight</button>
     Your Highlight Link: <a target="_blank" href="{{ result }}" >{{result}}</a>
+    <br>
+    <label for="datePicker">Select by Date</label>
+    <input name="date" type="date" ng-model="date" ng-show="sport!='football'">
+    <select name="date" ng-model="week" ng-options="w for w in weeks" ng-show="sport=='football'">
+        <option></option>
+    </select>
+    <table>
+      <tr ng-repeat="game in games">
+        <td>{{ x.name }}</td>
+        <td>{{ x.date }}</td>
+      </tr>
+    </table>
 </div>
 {%endverbatim%}
 {%endblock%}

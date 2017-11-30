@@ -46,7 +46,6 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
                             });
                             ids += ',' + vidId;
                         }
-
                     });
                     if(ids == '') {
                         reject();
@@ -87,7 +86,26 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.result = ""
+        $scope.loadGames('basketball','')
+        $scope.weeks = [
+            "Week 1",
+            "Week 2",
+            "Week 3",
+            "Week 4",
+            "Week 5",
+            "Week 6",
+            "Week 7",
+            "Week 8",
+            "Week 9",
+            "Week 10",
+            "Week 11",
+            "Week 12",
+            "Week 13",
+            "Week 14",
+            "Week 15",
+            "Week 16",
+            "Week 17",
+        ]
     }
 
     $scope.debugSearch = function(entry) {
@@ -106,6 +124,16 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         }, function error(response) {
             $scope.linkData = [{'title':"search failed"}]
         });
+    }
+
+    $scope.loadGames = function(sport,date){
+        $scope.sport = sport
+        if(date == ''){
+            //load all recent games
+        }
+        else{
+            //load games for specific date
+        }
     }
 
     $scope.search = function(entry) {
