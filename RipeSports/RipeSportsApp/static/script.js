@@ -16,6 +16,24 @@ app.config(['$httpProvider', function($httpProvider) {
 app.factory('ytService', ['$http', '$q', function($http, $q) {
     var service = {};
 
+
+    /*
+        RETURNS:
+        results = {
+            'title'
+            'duration'
+            'channel'
+            'views'
+            'dislikes'
+            'likes'
+            'favorites'
+            'comments'
+            'thumbUrl'
+            'thumbImg'
+            'id'
+            'link'
+        }
+    */
     service.getYtLink = function(searchString) {
         return $q(function(resolve, reject) {
             if(googleApiReady) {
@@ -34,11 +52,12 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
                     srchItems.forEach(function(item, index) {
                         if(item.id.kind == "youtube#video") {
                             vidId = item.id.videoId;
-                            vidTitle = item.snippet.title;
                             vidThumburl = ("thumbnails" in item.snippet) ? item.snippet.thumbnails.default.url : "";
                             vidThumbimg = '<pre><img id="thumb" src="' + vidThumburl + '" alt="No  Image Available." style="width:204px;height:128px"></pre>';
                             ytSearchResults.push({
-                                'title': vidTitle,
+                                'title': item.snippet.title,
+                                'channel': item.snippet.channel,
+                                'publishedAt': item.snippet.published_at,
                                 'thumbUrl': vidThumburl,
                                 'thumbImg': vidThumbimg,
                                 'id': vidId,
@@ -86,7 +105,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.loadGames('basketball','')
+        $scope.loadGames('nba','')
         $scope.weeks = [
             "Week 1",
             "Week 2",
@@ -106,6 +125,10 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             "Week 16",
             "Week 17",
         ]
+        favoriteChannels = {
+            "nba":"Motion Station",
+            "nfl":"NFL"
+        }
     }
 
     $scope.debugSearch = function(entry) {
@@ -127,89 +150,97 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.loadGames = function(sport,date){
+        /* sports API stub. results are bound to the context through the games array:
+        $scope.games = [
+            {"homeTeam":"Lakers"
+             "awayTeam":"Clippers"
+            "date":"11 27 2017"}
+        ]*/
         $scope.sport = sport
         if(date == ''){
             //load all recent games
+
+            //to be removed:
+            $scope.games = [
+                {"homeTeam":"Lakers",
+                 "awayTeam":"Clippers",
+                 "date":"11/27/2017"}
+            ]
         }
         else{
             //load games for specific date
         }
     }
 
+    //TODO remove:
     $scope.search = function(entry) {
-        findNthBestLink(entry, 1).then(function(best) {
+        findNthBestLink({"homeTeam":"Lakers",
+                 "awayTeam":"Clippers",
+                "date":"11 27 2017"}, 1).then(function(best) {
             $scope.result = best['link'];
         }, function error(response) {
             $scope.result = "ERROR"
         });
     }
 
-    var findNthBestLink = function(entry, n) {
+    $scope.playHighlight = function(game){
+        findNthBestLink(game,1).then(function success(highlightLink){
+            //hand off highlightLink to youtube iframe api for playing
+            alert("not implemented!")
+        },function error(){
+            alert("Highlight not found :(")
+        })
+    }
+
+    var findNthBestLink = function(game, n) {
         return $q(function(resolve, reject) {
-            var searchString = entry + " highlights";
+            var searchString = game.homeTeam+" "+game.awayTeam+" "+game.date+" "+favoriteChannels[$scope.sport]
             ytService.getYtLink(searchString).then(function success(results) {
-                badKeywords = ["full game", "spoiler"]
-                goodKeywords = ["highlight", "game", "week","nfl"]
-
-                badKeywords = badKeywords.filter(function(bK) {
-                    if(searchString.indexOf(bK) == -1) {
-                        return bK;
-                    }
-                });
-
                 var scoreIndex = [];
                 results.forEach(function(result, i) {
                     var matchScore = i;
-                    badKeywords.forEach(function(bK) {
-                        if(result['title'].indexOf(bK) != -1) {
-                            matchScore += 1.1;
-                        }
-                    })
-                    goodKeywords.forEach(function(gK) {
-                        if(result['title'].indexOf(gK) != -1) {
-                            matchScore -= 1.1;
-                        }
-                    })
-                    if(result['title'].indexOf(entry) != -1) {
+                    //match uploader
+                    if(favoriteChannels[$scope.sport] == result['channel']>=0){
+                        matchScore -= 1000;
+                    }
+                    //match upload date
+                    if(datesCheckOut(result['publishedAt'],game.date)){
                         matchScore -= 5;
                     }
-                    if(result['title'].indexOf(entry) != -1) {
-                        matchScore -= 3;
+                    //match team names and date
+                    if(result['title'].indexOf(game.homeTeam) >= 0) {
+                        matchScore -= 1;
+                    }
+                    if(result['title'].indexOf(game.awayTeam) >= 0) {
+                        matchScore -= 1;
+                    }
+                    if(result['title'].indexOf(game.date) >= 0) {
+                        matchScore -= 1;
                     }
                     scoreIndex.push([i, matchScore])
                 });
                 var bestToWorst = scoreIndex.sort(function(a, b) {
                     return a[1] - b[1];
                 })
-                if(n==2){
-                    searchResults = []
-                    for(j=0;j<5;j++){
-                        resultDetails = results[bestToWorst[j][0]]
-                        resultDetails['originalOrder'] = bestToWorst[j][0]
-                        resultDetails['algScore'] = bestToWorst[j][1]
-                        searchResults.push(resultDetails)
-                    }
-                    resolve(searchResults);
-                }
                 var nthBestIndex = bestToWorst[n - 1][0]
                 resolve(results[nthBestIndex]);
             }, function error() {
-                //try getting link using poormansjams server's algorithm implementation (which for some lame reason yields different results)
-                $http({
-                    url: "getYtlink/",
-                    method: 'POST',
-                    data: track
-                }).then(function success(response) {
-                    resolve(response.data);
-                }, function error(response) {
-                    reject();
-                });
+                reject()
             });
         })
 
     }
 
+    var datesCheckOut = function(uploadDate, gameDate){
+        /*TODO*/
+        var tolerance = "1w"
+        return false
+    }
 
+    $scope.loadNFLGames = function(week,year){
+        /*TODO convert week and year into date format then call loadGames('nfl',date)*/
+
+    }
 
     init();
 

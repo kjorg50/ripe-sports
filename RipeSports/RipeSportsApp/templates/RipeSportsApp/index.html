@@ -13,30 +13,38 @@
             <div class="collapse navbar-collapse" id='headerCollapseableDiv'>
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a  class="nav-link" role="button" ng-click="loadGames('basketball','')">Basketball</a>
+                        <a  class="nav-link" role="button" ng-click="loadGames('nba','')">Basketball</a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" role="button" ng-click="loadGames('football','')">Football</a>
+                        <a href="#" class="nav-link" role="button" ng-click="loadGames('nfl','')">Football</a>
                     </li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
 
     </nav>
-
+    <!--TODO remove:
     <input type="text" ng-model="gameEntry" >
     <button ng-click="search(gameEntry)" >Get Highlight</button>
     Your Highlight Link: <a target="_blank" href="{{ result }}" >{{result}}</a>
-    <br>
+    <br>-->
     <label for="datePicker">Select by Date</label>
-    <input name="date" type="date" ng-model="date" ng-show="sport!='football'">
-    <select name="date" ng-model="week" ng-options="w for w in weeks" ng-show="sport=='football'">
+    <input name="date" type="date" ng-model="date" ng-show="sport!='nfl'">
+    <button ng-click="loadGames(sport,date)" ng-show="sport!='nfl'">Go</button>
+    <select name="date" ng-model="week" ng-options="w for w in weeks" ng-show="sport=='nfl'">
         <option></option>
     </select>
-    <table>
-      <tr ng-repeat="game in games">
-        <td>{{ x.name }}</td>
-        <td>{{ x.date }}</td>
+    <button ng-click="loadNFLGames(week,year)" ng-show="sport=='nfl'">Go</button>
+    <table class="table">
+        <tr>
+            <th>Home Team</th>
+            <th>Away Team</th>
+            <th>Date</th>
+        </tr>
+      <tr ng-repeat="game in games" ng-click="playHighlight(game)">
+        <td>{{ game.homeTeam }}</td>
+        <td>{{ game.awayTeam }}</td>
+        <td>{{ game.date }}</td>
       </tr>
     </table>
 </div>
