@@ -1,3 +1,16 @@
+// First, checks if it isn't implemented yet.
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
 var googleApiReady = false;
 googleApiClientReady = function() {
     gapi.client.setApiKey('AIzaSyCEP6Mt-yoKXgxdJ8et7HFgGSLLJKjTe-Y');
@@ -40,6 +53,41 @@ function stopVideo() {
   document.getElementById("player").style.display = "none";
 }
 
+
+var getDate = function getDate(datetimeStr) {
+  mapMonth = {
+    0:'January',
+    1:'February',
+    2:'March',
+    3:'April',
+    4:'May',
+    5:'June',
+    6:'July',
+    7:'August',
+    8:'September',
+    9:'October',
+    10:'November',
+    11:'December'
+  }
+
+  mapDay = {
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday'
+  }
+
+  date = new Date(datetimeStr)
+  dow = mapDay[date.getDay()]
+  day = date.getDate()
+  month = mapMonth[date.getMonth()]
+  year = date.getFullYear()
+
+  return ["{0}, {1} {2}".format(dow, date, month), year]
+  }
 
 var app = angular.module('myApp', []);
 
@@ -138,8 +186,8 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.loadNBAGames("Thursday, November 30",2016)
-        //$scope.loadNFLGames(0,0)
+        $scope.loadNBAGames("Thursday, November 30", 2016)
+        $scope.loadNFLGames(0,0)
         $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
         favoriteChannels = {
@@ -237,10 +285,10 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         })
     }
 
-    $scope.loadNBAGames = function(date){
-        $scope.sport = 'nba'
-        year = 2017
-        date = "Thursday, November 30"
+    $scope.loadNBAGames = function(datetimeStr){
+        result = getDate(datetimeStr)
+        date = result[0]
+        year = result[1]
         $http({
             url: "/getnbagames/",
             method: 'GET'
