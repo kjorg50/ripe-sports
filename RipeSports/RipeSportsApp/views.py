@@ -23,9 +23,9 @@ def getNFLGames(request):
         year = postData["year"]
         week = postData['week']
         if (week+year==0):
-            output = get_current_nfl_week()
-            week = output['current_week']
-            year = output['year']
+            recentDate = get_current_nfl_week()
+            week = recentDate['current_week']
+            year = recentDate['year']
         if year == 2017:
             with open("conf/nflGames.json","r") as nfl2017JSON:
                 gamesDict = json.load(nfl2017JSON)

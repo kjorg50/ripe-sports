@@ -301,7 +301,6 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.loadNBAGames = function(datetimeStr){
-        $scope.sport = 'nba'
         if (datetimeStr == ""){
             datetimeStr = new Date()
         }
@@ -356,6 +355,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.loadGames = function(sport,date){
+        $scope.sport = sport
         if ($scope.sport == 'nba'){
             $scope.loadNBAGames(date)
         }

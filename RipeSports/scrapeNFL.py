@@ -45,7 +45,7 @@ TEAM_NAMES = {
 
 def getAllNFLGames():
     games = []
-    for week in range(1,13):
+    for week in range(1,18):
         try:
             url = "http://www.espn.com/nfl/schedule/_/week/"+str(week)
             html = requests.get(url)
