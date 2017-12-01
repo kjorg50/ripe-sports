@@ -6,6 +6,41 @@ googleApiClientReady = function() {
     });
 }
 
+// loads the IFrame Player API code asynchronously.
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+// creates an <iframe> (and YouTube player)
+// after the API code downloads.
+var player;
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    height: '390',
+    width: '640',
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(event) {
+  event.target.playVideo();
+}
+
+function onPlayerStateChange(event) {
+  if(event.data === YT.PlayerState.ENDED) {
+        stopVideo();
+    }
+}
+
+function stopVideo() {
+  player.stopVideo();
+  document.getElementById("player").style.display = "none";
+}
+
+
 var app = angular.module('myApp', []);
 
 app.config(['$httpProvider', function($httpProvider) {
@@ -70,7 +105,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
                         reject();
                     }
                     var detailsRequest = gapi.client.youtube.videos.list({
-                        part: 'contentDetails,statistics', //add ',statistics' for view count info 
+                        part: 'contentDetails,statistics', //add ',statistics' for view count info
                         id: ids
                     })
                     detailsRequest.execute(function(response) {
@@ -154,7 +189,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.games = [
             {"homeTeam":"Lakers"
              "awayTeam":"Clippers"
-            "date":"11 27 2017"}
+            "date":"11/27/2017"}
         ]*/
         $scope.sport = sport
         if(date == ''){
@@ -186,7 +221,8 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     $scope.playHighlight = function(game){
         findNthBestLink(game,1).then(function success(highlightLink){
             //hand off highlightLink to youtube iframe api for playing
-            alert("not implemented!")
+            document.getElementById("player").style.display = "inline";
+            player.loadVideoById({videoId: highlightLink.id})
         },function error(){
             alert("Highlight not found :(")
         })

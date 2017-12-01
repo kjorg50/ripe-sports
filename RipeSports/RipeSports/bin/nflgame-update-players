@@ -1,0 +1,4 @@
+#!/Users/soham.roy/playground/dev/ripe-sports/RipeSports/ripesports/bin/python2.7
+
+import nflgame.update_players
+nflgame.update_players.run()
