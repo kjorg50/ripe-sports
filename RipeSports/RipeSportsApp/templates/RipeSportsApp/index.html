@@ -2,25 +2,28 @@
 {% block content %}
 {%verbatim%}
 <div ng-controller="indexCtrl">
-<nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
+    <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
 
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <a class="navbar-brand" href="/">RipeSports</a>
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <button class="navbar-toggler-right navbar-toggler" type="button" data-toggle="collapse" data-target="#headerCollapseableDiv" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <a class="navbar-brand" href="/">RipeSports</a>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <button class="navbar-toggler-right navbar-toggler" type="button" data-toggle="collapse" data-target="#headerCollapseableDiv" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
-          </button>
-            <div class="collapse navbar-collapse" id='headerCollapseableDiv'>
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a  class="nav-link" role="button" ng-click="loadNBAGames(0,0)">Basketball</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" role="button" ng-click="loadNFLGames(0,0)">Football</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
+        </button>
+        <div class="collapse navbar-collapse" id='headerCollapseableDiv'>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a  class="nav-link" role="button" ng-click="loadMLBGames(0,0)">Baseball</a>
+                </li>
+                <li class="nav-item">
+                    <a  class="nav-link" role="button" ng-click="loadNBAGames(0,0)">Basketball</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" role="button" ng-click="loadNFLGames(0,0)">Football</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
 
     </nav>
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
@@ -50,11 +53,11 @@
             <th>Away Team</th>
             <th>Date</th>
         </tr>
-      <tr ng-repeat="game in games" ng-click="playHighlight(game)">
-        <td>{{ game.homeTeam }}</td>
-        <td>{{ game.awayTeam }}</td>
-        <td>{{ game.date }}</td>
-      </tr>
+        <tr ng-repeat="game in games" ng-click="playHighlight(game)">
+            <td>{{ game.homeTeam }}</td>
+            <td>{{ game.awayTeam }}</td>
+            <td>{{ game.date }}</td>
+        </tr>
     </table>
 </div>
 {%endverbatim%}
