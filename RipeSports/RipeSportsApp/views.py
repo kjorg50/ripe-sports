@@ -23,8 +23,9 @@ def getNFLGames(request):
         year = postData["year"]
         week = postData['week']
         if (week+year==0):
-            week = 12
-            year = 2017
+            output = get_current_nfl_week()
+            week = output['current_week']
+            year = output['year']
         if year == 2017:
             with open("conf/nflGames.json","r") as nfl2017JSON:
                 gamesDict = json.load(nfl2017JSON)
@@ -85,7 +86,6 @@ def get_current_nfl_week():
     if curr_date > nfl_end_date:
         curr_date = nfl_end_date
     curr_week = ((curr_date - nfl_start_date).days / 7) + 1
-    print curr_week
     if curr_week > 17:
         curr_week = 17
 
@@ -94,5 +94,4 @@ def get_current_nfl_week():
         "year": year
         }
 
-    pprint(json.dumps(output))
-    return HttpResponse(json.dumps(output), content_type='application/json')
+    return output
