@@ -192,11 +192,6 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.loadNBAGames("Thursday, November 30", 2016)
         $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-        favoriteChannels = {
-            "mlb":"MLB",
-            "nba":"Motion Station",
-            "nfl":"NFL"
-        }
     }
 
     $scope.debugSearch = function(entry) {
@@ -229,6 +224,12 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     var findNthBestLink = function(game, n) {
         return $q(function(resolve, reject) {
+            var favoriteChannels = {
+                    "mlb":"MLB",
+                    "nba":"Motion Station",
+                    "nfl":"NFL"
+                }
+            var goodWords = ["highlight", "highlights", "recap"]
             var searchString = game.homeTeam+" "+game.awayTeam+" "+game.date+" "+favoriteChannels[$scope.sport]
             ytService.getYtLink(searchString).then(function success(results) {
                 var scoreIndex = [];

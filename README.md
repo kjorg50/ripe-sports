@@ -11,6 +11,10 @@ A one-time step is required to apply the database migrations
 
 ```python manage.py migrate```
 
+Run the NFL scraper to gather the latest game data (as often as needed)
+
+```python scrapeNFL.py```
+
 ## Usage
 
 Running local server:
