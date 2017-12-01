@@ -40,7 +40,8 @@ TEAM_NAMES = {
     "STL": "St Louis Rams",
     "TB": "Tampa Bay Buccaneers",
     "TEN": "Tennessee Titans",
-    "WAS": "Washington Redskins"
+    "WSH": "Washington Redskins",
+    "WAS": "Washington Redskins",
 }
 
 def getAllNFLGames():
@@ -58,6 +59,7 @@ def getAllNFLGames():
                             tds = tr.find_all('td')
                             homeTd = tds[1]
                             abbr = homeTd.find_next('abbr')
+
                             game['homeTeam'] = TEAM_NAMES[abbr.string]
                             awayTd = tds[0]
                             abbr = awayTd.find_next('abbr')

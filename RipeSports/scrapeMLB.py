@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 def getAllMLBGames():
     games = []
     for year in range(2000, 2018):
-        for month in range(6, 13):
+        for month in range(3,12):
             for day in range(1, 32, 7):
                 try:
                     url = "http://www.espn.com/mlb/schedule/_/date/"+str(year)+str(month)+(str(day) if day >= 10 else "0"+str(day))
