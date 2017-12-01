@@ -13,7 +13,7 @@ def getAllNBAGames():
         for month in range(6, 13):
             for day in range(1, 32, 7):
                 try:
-                    url = "http://www.espn.com/nba/schedule/_/date/"+str(year)+str(month)+str(day)
+                    url = "http://www.espn.com/nba/schedule/_/date/"+str(year)+str(month)+(str(day) if day >= 10 else "0"+str(day))
                     html = requests.get(url)
                     soup = BeautifulSoup(html.text, 'html.parser')
                     for table in soup.find_all('table'):
@@ -38,6 +38,5 @@ def getAllNBAGames():
 
 if __name__ == '__main__':
     allGames = getAllNBAGames()
-
     with open('conf/nbaGames.json', 'w+') as outfile:
         json.dump(allGames, outfile)
