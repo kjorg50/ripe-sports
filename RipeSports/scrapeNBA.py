@@ -17,11 +17,12 @@ def getAllNBAGames():
                     html = requests.get(url)
                     soup = BeautifulSoup(html.text, 'html.parser')
                     for table in soup.find_all('table'):
-                        if table.get('class') == ["schedule", "has-team-logos", "align-left"]:
-                            game = {"date": table.find_previous("h2").string,
-                                    "year": year}
+                        if table.get('class')==["schedule","has-team-logos","align-left"]:
+                            date = table.find_previous("h2").string
                             for tbody in table.find_all('tbody'):
                                 for tr in tbody.find_all('tr'):
+                                    game = {"date":date,
+                                            "year":year}
                                     tds = tr.find_all('td')
                                     homeTd = tds[1]
                                     abbr = homeTd.find_next('abbr')
