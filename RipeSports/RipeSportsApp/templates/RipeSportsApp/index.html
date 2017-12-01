@@ -31,13 +31,19 @@
     <button ng-click="search(gameEntry)" >Get Highlight</button>
     Your Highlight Link: <a target="_blank" href="{{ result }}" >{{result}}</a>
     <br>-->
-    <label for="datePicker">Select by Date</label>
+    <label for="date" ng-show="sport!='nfl'">Select by Date</label>
     <input name="date" type="date" ng-model="date" ng-show="sport!='nfl'">
     <button ng-click="loadGames(sport,date)" ng-show="sport!='nfl'">Go</button>
-    <select name="date" ng-model="week" ng-options="w for w in weeks" ng-show="sport=='nfl'">
+
+    <label for="week" ng-show="sport=='nfl'">Week</label>
+    <select name="week" ng-model="week" ng-options="w for w in weeks" ng-show="sport=='nfl'">
         <option></option>
     </select>
-    <button ng-click="loadNFLGames(3,2013)" ng-show="sport=='nfl'">Go</button>
+    <label for="year" ng-show="sport=='nfl'">Year</label>
+    <select name="year" ng-model="year" ng-options="y for y in years" ng-show="sport=='nfl'">
+        <option></option>
+    </select>
+    <button ng-click="loadNFLGames(week,year)" ng-show="sport=='nfl'">Go</button>
     <table class="table">
         <tr>
             <th>Home Team</th>

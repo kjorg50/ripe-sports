@@ -50,8 +50,6 @@ app.config(['$httpProvider', function($httpProvider) {
 
 app.factory('ytService', ['$http', '$q', function($http, $q) {
     var service = {};
-
-
     /*
         RETURNS:
         results = {
@@ -141,25 +139,8 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     var init = function() {
         $scope.loadGames('nfl','')
-        $scope.weeks = [
-            "Week 1",
-            "Week 2",
-            "Week 3",
-            "Week 4",
-            "Week 5",
-            "Week 6",
-            "Week 7",
-            "Week 8",
-            "Week 9",
-            "Week 10",
-            "Week 11",
-            "Week 12",
-            "Week 13",
-            "Week 14",
-            "Week 15",
-            "Week 16",
-            "Week 17",
-        ]
+        $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
         favoriteChannels = {
             "nba":"Motion Station",
             "nfl":"NFL"
@@ -194,28 +175,10 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.sport = sport
         if(date == ''){
             //load all recent games
-
-            //to be removed:
-            $scope.games = [
-                {"homeTeam":"DEN",
-                 "awayTeam":"BAL",
-                 "date":"Week 9"}
-            ]
         }
         else{
             //load games for specific date
         }
-    }
-
-    //TODO remove:
-    $scope.search = function(entry) {
-        findNthBestLink({"homeTeam":"Lakers",
-                 "awayTeam":"Clippers",
-                "date":"11 27 2017"}, 1).then(function(best) {
-            $scope.result = best['link'];
-        }, function error(response) {
-            $scope.result = "ERROR"
-        });
     }
 
     $scope.playHighlight = function(game){
