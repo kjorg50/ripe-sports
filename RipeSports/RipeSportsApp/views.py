@@ -48,6 +48,10 @@ def getNBAGames(request):
     allGames = open("conf/nbaGames.json","r")
     return HttpResponse(allGames.read(),content_type='application/json')
 
+def getMLBGames(request):
+    allGames = open("conf/mlbGames.json","r")
+    return HttpResponse(allGames.read(),content_type='application/json')
+
 """
 Functions for NFL date calculations
 """

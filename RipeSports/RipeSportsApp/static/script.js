@@ -301,6 +301,10 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.loadNBAGames = function(datetimeStr){
+        $scope.sport = 'nba'
+        if (datetimeStr == ""){
+            datetimeStr = new Date()
+        }
         result = getDate(datetimeStr)
         date = result[0]
         year = result[1]
@@ -324,9 +328,40 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         })
     }
 
-    $scope.loadMLBGames = function(date){
-        $scope.sport = 'mlb'
-        // TODO
+    $scope.loadMLBGames = function(datetimeStr){
+        if (datetimeStr == ""){
+            datetimeStr = new Date()
+        }
+        result = getDate(datetimeStr)
+        date = result[0]
+        year = result[1]
+        $http({
+            url: "/getmlbgames/",
+            method: 'GET'
+        }).then(function success(response){
+            $scope.games = []
+            allGames = response.data
+            allGames.forEach(function(game){
+                if(game.year == year && game.date == date){
+                    $scope.games.push({
+                        "homeTeam":game.homeTeam,
+                        "awayTeam":game.awayTeam,
+                        "date":game.date + " " + game.year.toString()
+                    })
+                }
+            })
+        },function error(){
+            console.log("No game data found :(")
+        })
+    }
+
+    $scope.loadGames = function(sport,date){
+        if ($scope.sport == 'nba'){
+            $scope.loadNBAGames(date)
+        }
+        if ($scope.sport == 'mlb'){
+            $scope.loadMLBGames(date)
+        }
     }
 
     init();
