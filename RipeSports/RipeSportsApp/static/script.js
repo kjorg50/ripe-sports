@@ -262,7 +262,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                     if(hours > 0){
                         matchScore += 1000;
                     }
-                    if(minutes > 5){
+                    if(minutes > 10){
                         matchScore += 100;
                     }
                     scoreIndex.push([i, matchScore])
