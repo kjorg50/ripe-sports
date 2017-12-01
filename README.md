@@ -11,6 +11,11 @@ A one-time step is required to apply the database migrations
 
 ```python manage.py migrate```
 
+To get latest games, run - 
+
+```python scrapeNBA.py```
+```python scrapeNFL.py```
+
 ## Usage
 
 Running local server:

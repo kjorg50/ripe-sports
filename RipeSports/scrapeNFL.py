@@ -7,13 +7,13 @@ import os
 sfrom bs4 import BeautifulSoup
 
 
-def getAllNBAGames():
+def getAllNFLGames():
     games = []
     for year in range(2000, 2018):
         for month in range(6, 13):
             for day in range(1, 32, 7):
                 try:
-                    url = "http://www.espn.com/nba/schedule/_/date/"+str(year)+str(month)+str(day)
+                    url = "http://www.espn.com/nfl/schedule/_/date/"+str(year)+str(month)+str(day)
                     html = requests.get(url)
                     soup = BeautifulSoup(html.text, 'html.parser')
                     for table in soup.find_all('table'):
@@ -36,7 +36,7 @@ def getAllNBAGames():
 
 
 if __name__ == '__main__':
-    allGames = getAllNBAGames()
+    allGames = getAllNFLGames()
 
-    with open('conf/nbaGames.json', 'w+') as outfile:
+    with open('conf/nflGames.json', 'w+') as outfile:
         json.dump(json.dumps(allGames), outfile)
