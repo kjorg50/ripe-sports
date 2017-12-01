@@ -185,7 +185,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                 results.forEach(function(result, i) {
                     var matchScore = i;
                     //match uploader
-                    if(favoriteChannels[$scope.sport] == result['channel']>=0){
+                    if(favoriteChannels[$scope.sport] == result['channel']){
                         matchScore -= 10;
                     }
                     //match upload date
@@ -223,6 +223,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.loadNFLGames = function(week,year){
+        $scope.sport = 'nfl'
         $http({
             url: "/getnflgames/",
             method: 'POST',
@@ -236,7 +237,9 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         })
     }
 
-    $scope.loadNBAGames = function(date,year){
+
+    $scope.loadNBAGames = function(date){
+        $scope.sport = 'nba'
         year = 2017
         date = "Thursday, November 30"
         $http({
