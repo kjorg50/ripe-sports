@@ -4,7 +4,7 @@ import requests
 import json
 import os
 
-sfrom bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 
 def getAllNBAGames():
