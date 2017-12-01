@@ -244,13 +244,13 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             method: 'GET'
         }).then(function success(response){
             $scope.games = []
-            allGames = response.data
+            allGames = JSON.parse(response.data)
             allGames.forEach(function(game){
                 if(game.year == year && game.date == date){
                     $scope.games.push({
                         "homeTeam":game.homeTeam,
                         "awayTeam":game.awayTeam,
-                        "date":game.date + game.year.toString()
+                        "date":game.date + " " + game.year.toString()
                     })
                 }
             })

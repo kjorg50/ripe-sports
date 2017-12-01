@@ -42,7 +42,7 @@ def getNFLGames(request):
     return HttpResponse(json.dumps(output),content_type='application/json')
 
 def getNBAGames(request):
-    allGames = open("nbaGames.json","r")
+    allGames = open("conf/nbaGames.json","r")
     return HttpResponse(allGames.read(),content_type='application/json')
     if request.method=="POST":
         postData = json.loads(request.body)
