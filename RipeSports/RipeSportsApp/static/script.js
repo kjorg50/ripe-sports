@@ -19,6 +19,9 @@ googleApiClientReady = function() {
     });
 }
 
+// YouTube duration format regex
+var iso8601DurationRegex = /(-)?P(?:([\.,\d]+)Y)?(?:([\.,\d]+)M)?(?:([\.,\d]+)W)?(?:([\.,\d]+)D)?T(?:([\.,\d]+)H)?(?:([\.,\d]+)M)?(?:([\.,\d]+)S)?/;
+
 // loads the IFrame Player API code asynchronously.
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
@@ -232,6 +235,12 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                 var scoreIndex = [];
                 results.forEach(function(result, i) {
                     var matchScore = i;
+                    // See https://stackoverflow.com/a/29153059/1092403 for ISO 8601 example
+                    // Extract the hours and mintutes of the duration (assuming no videos are
+                    // over a day long)
+                    var duration = result['duration'].match(iso8601DurationRegex);
+                    var hours = duration[6] === undefined ? 0 : duration[6];
+                    var minutes = duration[7] === undefined ? 0 : duration[7];
                     //match uploader
                     if(favoriteChannels[$scope.sport] == result['channel']){
                         matchScore -= 10;
@@ -249,6 +258,12 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                     }
                     if(result['title'].indexOf(game.date) >= 0) {
                         matchScore -= 1;
+                    }
+                    if(hours > 0){
+                        matchScore += 1000;
+                    }
+                    if(minutes > 5){
+                        matchScore += 100;
                     }
                     scoreIndex.push([i, matchScore])
                 });
