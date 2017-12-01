@@ -237,7 +237,6 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         })
     }
 
-
     $scope.loadNBAGames = function(date){
         $scope.sport = 'nba'
         year = 2017
@@ -260,6 +259,11 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         },function error(){
             console.log("No game data found :(")
         })
+    }
+
+    $scope.loadMLBGames = function(date){
+        $scope.sport = 'mlb'
+        // TODO
     }
 
     init();
