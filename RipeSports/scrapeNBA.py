@@ -40,4 +40,4 @@ if __name__ == '__main__':
     allGames = getAllNBAGames()
 
     with open('conf/nbaGames.json', 'w+') as outfile:
-        json.dump(json.dumps(allGames), outfile)
+        json.dump(allGames, outfile)

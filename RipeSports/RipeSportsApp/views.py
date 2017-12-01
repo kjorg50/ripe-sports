@@ -17,54 +17,35 @@ def index(request):
 
 def getNFLGames(request):
     if request.method=="POST":
+        output = []
         postData = json.loads(request.body)
         #Post request holds week and year for which the games are wanted
         year = postData["year"]
         week = postData['week']
         if (week+year==0):
-            week = 1
-            year = 2016
-            print "curr shit: ",week,year
-        games = nflgame.games(year,week=week)
-    else:
-        #GET request responded to with all games of most recent week
-        #TODO
-        year = datetime.date.today().year #TODO check if this years season has begun
-        week = 12 #datetime.date.today().week
-        games = nflgame.games(year,week);
-    output = []
-    for game in games:
-        output.append({
-                "homeTeam":game.home,
-                "awayTeam":game.away,
-                "date": "Week "+str(week)
-            })
+            week = 12
+            year = 2017
+        if year == 2017:
+            with open("conf/nflGames.json","r") as nfl2017JSON:
+                gamesDict = json.load(nfl2017JSON)
+                for game in gamesDict:
+                    #pprint(game)
+                    if game['week'] == week:
+                        game['date'] = "Week "+str(week)
+                        output.append(game)
+        else:
+            games = nflgame.games(year,week=week)
+            for game in games:
+                output.append({
+                        "homeTeam":game.home,
+                        "awayTeam":game.away,
+                        "date": "Week "+str(week)
+                    })
     return HttpResponse(json.dumps(output),content_type='application/json')
 
 def getNBAGames(request):
     allGames = open("conf/nbaGames.json","r")
     return HttpResponse(allGames.read(),content_type='application/json')
-    if request.method=="POST":
-        postData = json.loads(request.body)
-        #Post request holds week and year for which the games are wanted
-        year = postData["year"]
-        week = postData['week']
-        games = nflgame.games(year,week=week)
-    else:
-        #GET request responded to with all games of most recent week
-        #TODO
-        year = datetime.date.today().year #TODO check if this years season has begun
-        week = 12 #datetime.date.today().week
-        games = nflgame.games(year,week);
-    output = []
-    for game in games:
-        output.append({
-                "homeTeam":game.home,
-                "awayTeam":game.away,
-                "date": "Week "+str(week)
-            })
-    return HttpResponse(json.dumps(output),content_type='application/json')
-
 
 """
 Functions for NFL date calculations
