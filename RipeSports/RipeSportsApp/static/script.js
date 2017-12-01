@@ -246,7 +246,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             method: 'GET'
         }).then(function success(response){
             $scope.games = []
-            allGames = JSON.parse(response.data)
+            allGames = response.data
             allGames.forEach(function(game){
                 if(game.year == year && game.date == date){
                     $scope.games.push({
