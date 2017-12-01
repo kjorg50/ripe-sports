@@ -1,5 +1,5 @@
 import calendar
-import datetime
+from datetime import datetime
 import json
 import nflgame
 
@@ -21,6 +21,10 @@ def getNFLGames(request):
         #Post request holds week and year for which the games are wanted
         year = postData["year"]
         week = postData['week']
+        if (week+year==0):
+            week = 1
+            year = 2016
+            print "curr shit: ",week,year
         games = nflgame.games(year,week=week)
     else:
         #GET request responded to with all games of most recent week
@@ -80,10 +84,12 @@ def get_nfl_start_date(year):
     return date + datetime.timedelta(days=(delta + 3))
 
 
-def get_current_nfl_week(year):
+def get_current_nfl_week():
     """
     Regular football season is 115 days
     """
+    year = datetime.now().year
+    curr_month = datetime.now().year
     if curr_month < 9:
         year -= 1
     nfl_start_date = get_nfl_start_date(year)

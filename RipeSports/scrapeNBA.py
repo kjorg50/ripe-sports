@@ -16,11 +16,12 @@ def getAllNBAGames():
                                     "year":year}
                             for tbody in table.find_all('tbody'):
                                 for tr in tbody.find_all('tr'):
-                                    homeTr = tr.find(class_='home')
-                                    abbr = homeTr.find_next('abbr')
+                                    tds = tr.find_all('td')
+                                    homeTd = tds[1]
+                                    abbr = homeTd.find_next('abbr')
                                     game['homeTeam'] = abbr.string
-                                    awayTr = tr.find_all('td')[0]
-                                    abbr = awayTr.find_next('abbr')
+                                    awayTd = tds[0]
+                                    abbr = awayTd.find_next('abbr')
                                     game['awayTeam'] = abbr.string
                                     games.append(game)
                 except:
