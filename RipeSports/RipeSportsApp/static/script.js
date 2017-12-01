@@ -105,7 +105,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.loadGames('nba','')
+        $scope.loadGames('nfl','')
         $scope.weeks = [
             "Week 1",
             "Week 2",
@@ -162,9 +162,9 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
             //to be removed:
             $scope.games = [
-                {"homeTeam":"Lakers",
-                 "awayTeam":"Clippers",
-                 "date":"11/27/2017"}
+                {"homeTeam":"DEN",
+                 "awayTeam":"BAL",
+                 "date":"Week 9"}
             ]
         }
         else{
@@ -239,7 +239,17 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     $scope.loadNFLGames = function(week,year){
         /*TODO convert week and year into date format then call loadGames('nfl',date)*/
-
+        $http({
+            url: "/getnflgames/",
+            method: 'POST',
+            data: {'week':week,
+                    'year':year}
+        }).then(function success(response){
+            //$scope.games = JSON.parse(response.data)
+            $scope.games = response.data
+        },function error(){
+            console.log("No game data found :(")
+        })
     }
 
     init();
