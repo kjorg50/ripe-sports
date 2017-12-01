@@ -21,6 +21,7 @@
 		<script src={% static "script.js" %}></script>
 		<link rel="stylesheet" href={% static "styles.css" %} type="text/css">
 		<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
+		{% csrf_token %}
 	</head>
 	<body>
 		<br><br><br>
