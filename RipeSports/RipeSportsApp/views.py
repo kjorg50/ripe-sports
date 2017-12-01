@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import json
 import nflgame
 
@@ -61,8 +61,9 @@ def get_nfl_start_date(year):
     Find first Monday of month (Labor Day), then add 3 days to get start of NFL season.
     """
     first_day_month, _ = calendar.monthrange(2017, 9)
+    first_date = date(2017, 9, 1)
     delta = (calendar.MONDAY - first_day_month) % 7
-    return date + datetime.timedelta(days=(delta + 3))
+    return first_date + timedelta(days=(delta + 3))
 
 
 def get_current_nfl_week():
@@ -75,16 +76,16 @@ def get_current_nfl_week():
         year -= 1
     nfl_start_date = get_nfl_start_date(year)
     nfl_start_day = nfl_start_date.day
-    curr_date = datetime.date.today()
+    curr_date = date.today()
 
-    if (cur_date.month == 9 and curr_date.day < nfl_start_day):
+    if (curr_date.month == 9 and curr_date.day < nfl_start_day):
         year -= 1
 
-    nfl_end_date = get_nfl_start_date(year) + datetime.timedelta(days=115)
+    nfl_end_date = get_nfl_start_date(year) + timedelta(days=115)
     if curr_date > nfl_end_date:
         curr_date = nfl_end_date
-
-    curr_week = ((curr_date - nfl_start_date) % 7) + 1
+    curr_week = ((curr_date - nfl_start_date).days / 7) + 1
+    print curr_week
     if curr_week > 17:
         curr_week = 17
 
@@ -95,4 +96,3 @@ def get_current_nfl_week():
 
     pprint(json.dumps(output))
     return HttpResponse(json.dumps(output), content_type='application/json')
-
