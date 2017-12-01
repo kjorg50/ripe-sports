@@ -89,7 +89,7 @@ var getDate = function getDate(datetimeStr) {
   month = mapMonth[date.getMonth()]
   year = date.getFullYear()
 
-  return ["{0}, {1} {2}".format(dow, day, month), year]
+  return ["{0}, {1} {2}".format(dow, month, day), year]
   }
 
 var app = angular.module('myApp', []);
@@ -189,8 +189,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.loadNBAGames("Wednesday, November 30 2016")
-        $scope.loadNFLGames(0,0)
+        $scope.loadNBAGames("Thursday, November 30", 2016)
         $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
         favoriteChannels = {
