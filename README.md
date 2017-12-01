@@ -3,9 +3,9 @@ Sports highlights without spoilers
 
 ## Installation
 
-First, make sure `django` is installed (a virtualenv can be used)
+First, make sure all `pip` packages are installed (a virtualenv can be used)
 
-```pip install django```
+```pip install -r requirements.txt```
 
 A one-time step is required to apply the database migrations
 
