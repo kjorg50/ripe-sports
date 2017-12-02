@@ -47,7 +47,9 @@ def getAllNBAGames():
         for month in range(6, 13):
             for day in range(1, 32, 7):
                 try:
-                    url = "http://www.espn.com/nba/schedule/_/date/"+str(year)+str(month)+(str(day) if day >= 10 else "0"+str(day))
+                    strMonth = str(month) if month >= 10 else "0"+str(month)
+                    strDay = str(day) if day >= 10 else "0"+str(day)
+                    url = "http://www.espn.com/nba/schedule/_/date/"+str(year)+strMonth+strDay
                     html = requests.get(url)
                     soup = BeautifulSoup(html.text, 'html.parser')
                     for table in soup.find_all('table'):

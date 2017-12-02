@@ -46,6 +46,7 @@ def getNFLGames(request):
 
 def getNBAGames(request):
     allGames = open("conf/nbaGames.json","r")
+    print allGames.read()
     return HttpResponse(allGames.read(),content_type='application/json')
 
 def getMLBGames(request):
