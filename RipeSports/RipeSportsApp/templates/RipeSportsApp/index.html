@@ -56,7 +56,8 @@
         <tr ng-repeat="game in games" ng-click="playHighlight(game)">
             <td>{{ game.homeTeam }}</td>
             <td>{{ game.awayTeam }}</td>
-            <td>{{ game.date }}</td>
+            <td ng-if="sport!='nfl'">{{ game.date }}</td>
+            <td ng-if="sport=='nfl'">Week {{ game.week }}, {{ game.year }}</td>
         </tr>
     </table>
 </div>

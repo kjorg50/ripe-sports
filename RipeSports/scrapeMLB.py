@@ -5,7 +5,7 @@ import json
 import os
 
 from bs4 import BeautifulSoup
-
+"""
 TEAM_NAMES = {
     "ANA": "Anaheim Angels",
     "ARI": "Arizona Diamondbacks",
@@ -43,14 +43,17 @@ TEAM_NAMES = {
     "WSH": "Washington Nationals",
     "WAS": "Washington Nationals",
 }
-
+"""
 def getAllMLBGames():
     games = []
-    for year in range(2000, 2018):
-        for month in range(3,12):
-            for day in range(1, 32, 7):
+    for year in range(2005, 2018):
+        for month in range(1,13):
+            for day in range(1, 32, 3):
+                print year, month, day
                 try:
-                    url = "http://www.espn.com/mlb/schedule/_/date/"+str(year)+str(month)+(str(day) if day >= 10 else "0"+str(day))
+                    strMonth = str(month) if month >= 10 else "0"+str(month)
+                    strDay = str(day) if day >= 10 else "0"+str(day)
+                    url = "http://www.espn.com/mlb/schedule/_/date/"+str(year)+strMonth+strDay
                     html = requests.get(url)
                     soup = BeautifulSoup(html.text, 'html.parser')
                     for table in soup.find_all('table'):
@@ -63,10 +66,10 @@ def getAllMLBGames():
                                     tds = tr.find_all('td')
                                     homeTd = tds[1]
                                     abbr = homeTd.find_next('abbr')
-                                    game['homeTeam'] = TEAM_NAMES[abbr.string]
+                                    game['homeTeam'] = abbr['title']
                                     awayTd = tds[0]
                                     abbr = awayTd.find_next('abbr')
-                                    game['awayTeam'] = TEAM_NAMES[abbr.string]
+                                    game['awayTeam'] = abbr['title']
                                     games.append(game)
                 except Exception as e:
                     pass

@@ -1,1 +1,0 @@
-[{"date": "Thursday, November 30", "awayTeam": "Utah Jazz", "homeTeam": "LA Clippers", "year": 2000}]

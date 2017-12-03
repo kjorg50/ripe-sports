@@ -189,7 +189,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.loadNBAGames("Thursday, November 30", 2016)
+        $scope.loadGames('nba',"")
         $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
     }
@@ -293,62 +293,33 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             data: {'week':week,
                     'year':year}
         }).then(function success(response){
-            //$scope.games = JSON.parse(response.data)
             $scope.games = response.data
         },function error(){
             console.log("No game data found :(")
         })
     }
 
-    $scope.loadNBAGames = function(datetimeStr){
-        if (datetimeStr == ""){
-            datetimeStr = new Date()
-        }
-        result = getDate(datetimeStr)
-        date = result[0]
-        year = result[1]
+    $scope.loadNBAGames = function(date,year){
         $http({
             url: "/getnbagames/",
-            method: 'GET'
+            method: 'POST',
+            data: {'date':date,
+                    'year':year}
         }).then(function success(response){
-            $scope.games = []
-            allGames = response.data
-            allGames.forEach(function(game){
-                if(game.year == year && game.date == date){
-                    $scope.games.push({
-                        "homeTeam":game.homeTeam,
-                        "awayTeam":game.awayTeam,
-                        "date":game.date + " " + game.year.toString()
-                    })
-                }
-            })
+            $scope.games = response.data
         },function error(){
             console.log("No game data found :(")
         })
     }
 
-    $scope.loadMLBGames = function(datetimeStr){
-        if (datetimeStr == ""){
-            datetimeStr = new Date()
-        }
-        result = getDate(datetimeStr)
-        date = result[0]
-        year = result[1]
+    $scope.loadMLBGames = function(date, year){
         $http({
             url: "/getmlbgames/",
-            method: 'GET'
+            method: 'POST',
+            data: {'date':date,
+                    'year':year}
         }).then(function success(response){
-            $scope.games = []
-            allGames = response.data
-            allGames.forEach(function(game){
-                if(game.year == year && game.date == date){
-                    $scope.games.push({
-                        "homeTeam":game.homeTeam,
-                        "awayTeam":game.awayTeam,
-                        "date":game.date + " " + game.year.toString()
-                    })
-                }
-            })
+            $scope.games = response.data
         },function error(){
             console.log("No game data found :(")
         })
@@ -356,11 +327,15 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     $scope.loadGames = function(sport,date){
         $scope.sport = sport
+        if (date == ""){
+            date = new Date()
+        }
+        dateYear = getDate(date)
         if ($scope.sport == 'nba'){
-            $scope.loadNBAGames(date)
+            $scope.loadNBAGames(dateYear[0],dateYear[1])
         }
         if ($scope.sport == 'mlb'){
-            $scope.loadMLBGames(date)
+            $scope.loadMLBGames(dateYear[0],dateYear[1])
         }
     }
 

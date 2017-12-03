@@ -2,10 +2,10 @@
 
 import requests
 import json
-import os
+import os, pprint
 
 from bs4 import BeautifulSoup
-
+"""
 TEAM_NAMES = {
     "ATL": "Atlanta Hawks",
     "BKN": "Brooklyn Nets",
@@ -38,13 +38,14 @@ TEAM_NAMES = {
     "TOR": "Toronto Raptors",
     "UTA": "Utah Jazz",
     "UTAH": "Utah Jazz",
-    "WAS": "Washington Wizards"
+    "WAS": "Washington Wizards",
+    "GS":"Golden State Warriors"
 }
-
+"""
 def getAllNBAGames():
     games = []
     for year in range(2000, 2018):
-        for month in range(6, 13):
+        for month in range(1,13):
             for day in range(1, 32, 7):
                 try:
                     strMonth = str(month) if month >= 10 else "0"+str(month)
@@ -62,10 +63,10 @@ def getAllNBAGames():
                                     tds = tr.find_all('td')
                                     homeTd = tds[1]
                                     abbr = homeTd.find_next('abbr')
-                                    game['homeTeam'] = TEAM_NAMES[abbr.string]
+                                    game['homeTeam'] = abbr['title']
                                     awayTd = tds[0]
                                     abbr = awayTd.find_next('abbr')
-                                    game['awayTeam'] = TEAM_NAMES[abbr.string]
+                                    game['awayTeam'] = abbr['title']
                                     games.append(game)
                 except Exception as e:
                     pass

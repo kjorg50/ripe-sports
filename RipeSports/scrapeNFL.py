@@ -5,7 +5,7 @@ import json
 import os
 
 from bs4 import BeautifulSoup
-
+"""
 TEAM_NAMES = {
     "ARI": "Arizona Cardinals",
     "ATL": "Atlanta Falcons",
@@ -43,30 +43,32 @@ TEAM_NAMES = {
     "WSH": "Washington Redskins",
     "WAS": "Washington Redskins",
 }
-
+"""
 def getAllNFLGames():
     games = []
-    for week in range(1,18):
-        try:
-            url = "http://www.espn.com/nfl/schedule/_/week/"+str(week)
-            html = requests.get(url)
-            soup = BeautifulSoup(html.text, 'html.parser')
-            for table in soup.find_all('table'):
-                if table.get('class') == ["schedule", "has-team-logos", "align-left"]:
-                    for tbody in table.find_all('tbody'):
-                        for tr in tbody.find_all('tr'):
-                            game = {"week": week}
-                            tds = tr.find_all('td')
-                            homeTd = tds[1]
-                            abbr = homeTd.find_next('abbr')
+    for year in range(2005, 2018):
+        for week in range(1,18):
+            try:
+                url = "http://www.espn.com/nfl/schedule/_/week/"+str(week)+"/year/"+str(year)
+                html = requests.get(url)
+                soup = BeautifulSoup(html.text, 'html.parser')
+                for table in soup.find_all('table'):
+                    if table.get('class') == ["schedule", "has-team-logos", "align-left"]:
+                        for tbody in table.find_all('tbody'):
+                            for tr in tbody.find_all('tr'):
+                                game = {"week": week,
+                                        "year":year}
+                                tds = tr.find_all('td')
+                                homeTd = tds[1]
+                                abbr = homeTd.find_next('abbr')
 
-                            game['homeTeam'] = TEAM_NAMES[abbr.string]
-                            awayTd = tds[0]
-                            abbr = awayTd.find_next('abbr')
-                            game['awayTeam'] = TEAM_NAMES[abbr.string]
-                            games.append(game)
-        except Exception as e:
-            pass
+                                game['homeTeam'] = abbr['title']
+                                awayTd = tds[0]
+                                abbr = awayTd.find_next('abbr')
+                                game['awayTeam'] = abbr['title']
+                                games.append(game)
+            except Exception as e:
+                pass
     return games
 
 
