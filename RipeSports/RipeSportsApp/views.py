@@ -1,55 +1,33 @@
 import calendar
 from datetime import date, datetime, timedelta
 import json
-
+from models import *
 from django.shortcuts import render
 from django.http import HttpResponse
 from pprint import pprint
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 
 def index(request):
     return render(request,'RipeSportsApp/index.html');# Create your views here.
 
-
-def getNFLGames(request):
+def getGames(request):
     if request.method=="POST":
         postData = json.loads(request.body)
-        #Post request holds week and year for which the games are wanted
-        year = postData["year"]
-        week = postData['week']
-        if (week+year==0):
+        #Post request holds date and year for which the games are wanted
+        league = postData.get("league")
+        year = postData.get("year")
+        date = postData.get("date")
+        print league, year, date
+        if league == "nfl" and (year + date == 0):
             curr_nfl_week = get_current_nfl_week()
-            week = curr_nfl_week['current_week']
+            date = curr_nfl_week['current_week']
             year = curr_nfl_week['year']
-        with open("conf/nflGames.json","r") as nflJSON:
-            allGames = json.load(nflJSON)
-            games = filter((lambda x: x['week'] == week and x['year'] == year),allGames)
-    return HttpResponse(json.dumps(games),content_type='application/json')
+        games = list(Game.objects.filter(date=date,year=year,league=league).values('homeTeam', 'awayTeam', 'date','year'))
+        #Special django serializer needed for serializing objects
+        return HttpResponse(json.dumps(games, cls=DjangoJSONEncoder),content_type='application/json')
 
-def getNBAGames(request):
-    if request.method=="POST":
-        postData = json.loads(request.body)
-        #Post request holds week and year for which the games are wanted
-        year = postData["year"]
-        date = postData["date"]
-        with open("conf/nbaGames.json","r") as nbaJSON:
-            allGames = json.load(nbaJSON)
-            games = filter((lambda x: x['date'] == date and x['year'] == year),allGames)
-    return HttpResponse(json.dumps(games),content_type='application/json')
-    allGames = open("conf/nbaGames.json","r")
-    return HttpResponse(allGames.read(),content_type='application/json')
-
-def getMLBGames(request):
-    if request.method=="POST":
-        postData = json.loads(request.body)
-        #Post request holds week and year for which the games are wanted
-        year = postData["year"]
-        date = postData["date"]
-        with open("conf/mlbGames.json","r") as mlbJSON:
-            allGames = json.load(mlbJSON)
-            games = filter((lambda x: x['date'] == date and x['year'] == year),allGames)
-    return HttpResponse(json.dumps(games),content_type='application/json')
-    allGames = open("conf/mlbGames.json","r")
 
 """
 Functions for NFL date calculations

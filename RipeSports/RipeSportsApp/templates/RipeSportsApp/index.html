@@ -5,7 +5,7 @@
     <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
 
         <!-- Brand and toggle get grouped for better mobile display -->
-        <a class="navbar-brand" href="/">RipeSports</a>
+        <a class="navbar-brand" href="/">Ripeleagues</a>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <button class="navbar-toggler-right navbar-toggler" type="button" data-toggle="collapse" data-target="#headerCollapseableDiv" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -13,13 +13,13 @@
         <div class="collapse navbar-collapse" id='headerCollapseableDiv'>
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a href="#" class="nav-link" role="button" ng-click="loadGames('mlb','')">Baseball</a>
+                    <a href="#" class="nav-link" role="button" ng-click="loadGames('mlb')">Baseball</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" role="button" ng-click="loadGames('nba','')">Basketball</a>
+                    <a href="#" class="nav-link" role="button" ng-click="loadGames('nba')">Basketball</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" role="button" ng-click="loadNFLGames(0,0)">Football</a>
+                    <a href="#" class="nav-link" role="button" ng-click="loadGames('nfl',0,0)">Football</a>
                 </li>
             </ul>
         </div>
@@ -34,19 +34,19 @@
     <button ng-click="search(gameEntry)" >Get Highlight</button>
     Your Highlight Link: <a target="_blank" href="{{ result }}" >{{result}}</a>
     <br>-->
-    <label for="date" ng-show="sport!='nfl'">Select by Date</label>
-    <input name="date" type="date" ng-model="date" ng-show="sport!='nfl'">
-    <button ng-click="loadGames(sport,date)" ng-show="sport!='nfl'">Go</button>
+    <label for="date" ng-show="league!='nfl'">Select by Date</label>
+    <input name="date" type="date" ng-model="date" ng-show="league!='nfl'">
+    <button ng-click="loadGames(league,date,0)" ng-show="league!='nfl'">Go</button>
 
-    <label for="week" ng-show="sport=='nfl'">Week</label>
-    <select name="week" ng-model="week" ng-options="w for w in weeks" ng-show="sport=='nfl'">
+    <label for="week" ng-show="league=='nfl'">Week</label>
+    <select name="week" ng-model="week" ng-options="w for w in weeks" ng-show="league=='nfl'">
         <option></option>
     </select>
-    <label for="year" ng-show="sport=='nfl'">Year</label>
-    <select name="year" ng-model="year" ng-options="y for y in years" ng-show="sport=='nfl'">
+    <label for="year" ng-show="league=='nfl'">Year</label>
+    <select name="year" ng-model="year" ng-options="y for y in years" ng-show="league=='nfl'">
         <option></option>
     </select>
-    <button ng-click="loadNFLGames(week,year)" ng-show="sport=='nfl'">Go</button>
+    <button ng-click="loadGames('nfl',week,year)" ng-show="league=='nfl'">Go</button>
     <table class="table">
         <tr>
             <th>Home Team</th>
@@ -56,8 +56,8 @@
         <tr ng-repeat="game in games" ng-click="playHighlight(game)">
             <td>{{ game.homeTeam }}</td>
             <td>{{ game.awayTeam }}</td>
-            <td ng-if="sport!='nfl'">{{ game.date }}</td>
-            <td ng-if="sport=='nfl'">Week {{ game.week }}, {{ game.year }}</td>
+            <td ng-if="league!='nfl'">{{ game.date }}</td>
+            <td ng-if="league=='nfl'">Week {{ game.week }}, {{ game.year }}</td>
         </tr>
     </table>
 </div>
