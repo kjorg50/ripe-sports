@@ -36,9 +36,12 @@ Running local server:
     -`pymysql` : used by sportsScraper.py to insert rows into the database outside of the django runtime environment
 9) Set up database tables: `python manage.py makemigrations` followed by `python manage.py migrate`
 
-#Nuking your database - i'm sure there are ways to avoid this. Its the database equivalent of deleting a git repository and recloning because you don't want to deal with merging conflicts lol. But because of the small size of our project it's often the easiest way
-1)Enter the Mysql command line tool by entering 'mysql -u root' in your command line (will be different if you used a password for your account)
+#Nuking your database - i'm sure there are ways to avoid this. Its the database equivalent of deleting a git repository and recloning because you don't want to deal with merging conflicts lol. But because of the small size of our project it's often the easiest way:
+
+1. Enter the Mysql command line tool by entering 'mysql -u root' in your command line (will be different if you used a password for your account)
+
 2) now that you're in the mysql command line: `drop database ripesportsdb;` to delete the db
+
 3) now recreate the database: `create database ripesportsdb`
 4) `exit` to quit the mysql command line
 5) now go to RipeSportsApp fodler, which should have a migrations folder within it
