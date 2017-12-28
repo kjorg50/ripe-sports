@@ -5,6 +5,7 @@ import os, pprint, sys
 from bs4 import BeautifulSoup
 import pymysql.cursors
 import pymysql
+import datetime
 
 HOST = 'localhost'
 DATABASE = 'ripesportsdb'
@@ -13,17 +14,19 @@ PASSWORD =''
 
 scraperSettings = {
     'nba':{
+        'league':'nba',
         'url':"http://www.espn.com/nba/schedule/_/date/",
         'datesPerPage':7
     },
     'mlb':{
+        'league':'mlb',
         'url':"http://www.espn.com/mlb/schedule/_/date/",
         'datesPerPage':3
     }
 }
 
 def insertGames(games):
-    query = "INSERT INTO `RipeSportsApp_game` (`homeTeam`,`awayTeam`,`league`,`date`,`year`) \
+    query = "INSERT INTO `RipeSportsApp_game` (`homeTeam`,`awayTeam`,`league`,`prettyDate`,`date`) \
              VALUES(%s,%s,%s,%s,%s)"
     conn = pymysql.connect(host=HOST,
                            database=DATABASE,
@@ -36,25 +39,35 @@ def insertGames(games):
     conn.commit()
     conn.close()
 
-def scrapeDailyLeagueGames(league,startYear,endYear):
+def parseDate(prettyDate, year):
+    #expects input in format "<weekday>, <month-word> <day>" outputs in Y-m-d format. Example: "Saturday, December 30" -> 2017-12-30
+    months = ["January","February","March","April","May","June","July","August","September","October","November","December"] 
+    pDateParts = prettyDate.split(' ')
+    month = months.index(pDateParts[1])+1
+    day = int(pDateParts[-1])
+    return datetime.date(year,month,day)
+
+def scrapeDailyLeagueGames(scrapeConf,startYear,endYear):
     games = []
-    scrapeConf = scraperSettings[league]  
     for year in range(startYear, endYear):
         for month in range(1,13):
             for day in range(1, 32, scrapeConf["datesPerPage"]):
-                print "Scraping: ",league,year,month,day
+                #print "Scraping: ",scrapeConf['league'],year,month,day
                 try:
                     strMonth = str(month) if month >= 10 else "0"+str(month)
                     strDay = str(day) if day >= 10 else "0"+str(day)
                     url = scrapeConf['url']+str(year)+strMonth+strDay
+                    print "Scraping ",url
+                    #scraping
                     html = requests.get(url)
                     soup = BeautifulSoup(html.text, 'html.parser')
                     for table in soup.find_all('table'):
                         if table.get('class')==["schedule","has-team-logos","align-left"]:
-                            date = table.find_previous("h2").string
+                            prettyDate = table.find_previous("h2").string #"Saturday, December 23"
+                            actualDate = parseDate(prettyDate,year) #"12/23/2017"
                             for tbody in table.find_all('tbody'):
                                 for tr in tbody.find_all('tr'):
-                                    game = (league,date,year)
+                                    game = (scrapeConf['league'],prettyDate,actualDate)
                                     tds = tr.find_all('td')
                                     homeTd = tds[1]
                                     abbr = homeTd.find_next('abbr')
@@ -81,9 +94,12 @@ def scrapeNFLGames(startYear,endYear):
                 soup = BeautifulSoup(html.text, 'html.parser')
                 for table in soup.find_all('table'):
                     if table.get('class') == ["schedule", "has-team-logos", "align-left"]:
+                        verboseDate = table.find_previous("h2").string #"Saturday, December 23"
+                        actualDate = parseDate(verboseDate,year) #"12/23/2017"
+                        prettyDate = "Week " + str(week)
                         for tbody in table.find_all('tbody'):
                             for tr in tbody.find_all('tr'):
-                                game = ("nfl",week,year)
+                                game = ("nfl",prettyDate,actualDate)
                                 tds = tr.find_all('td')
                                 homeTd = tds[1]
                                 abbr = homeTd.find_next('abbr')

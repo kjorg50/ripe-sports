@@ -57,42 +57,14 @@ function stopVideo() {
 }
 
 
-var getDate = function getDate(league,datetimeStr) {
-  mapMonth = {
-    0:'January',
-    1:'February',
-    2:'March',
-    3:'April',
-    4:'May',
-    5:'June',
-    6:'July',
-    7:'August',
-    8:'September',
-    9:'October',
-    10:'November',
-    11:'December'
+function formatDate(league,date) {
+    d = date.getDate()
+    m = date.getMonth()+1
+    y = date.getFullYear()
+    return [y,m,d].join('-')
   }
 
-  mapDay = {
-    0: 'Sunday',
-    1: 'Monday',
-    2: 'Tuesday',
-    3: 'Wednesday',
-    4: 'Thursday',
-    5: 'Friday',
-    6: 'Saturday'
-  }
-
-  date = new Date(datetimeStr)
-  dow = mapDay[date.getDay()]
-  day = date.getDate()
-  month = mapMonth[date.getMonth()]
-  year = date.getFullYear()
-
-  return ["{0}, {1} {2}".format(dow, month, day), year]
-  }
-
-var app = angular.module('myApp', []);
+var app = angular.module('myApp', ['ui.bootstrap']);
 
 app.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -189,12 +161,13 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
     var init = function() {
-        $scope.loadGames('nba')
+        $scope.setLeague('nba')
         $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
     }
 
     $scope.debugSearch = function(entry) {
+        //currently unused. helpful for tuning search algs becaue displays results and scoring breakdown of top links found
         var track = {
             'artist': entry.artist,
             'title': entry.title,
@@ -285,27 +258,63 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         return false
     }
 
-    $scope.loadGames = function(league,date, year){
+    $scope.setLeague = function(league){
         $scope.league = league
-        if (league != "nfl"){
-            if (date == undefined){
-                date = new Date()
-            }
-            dateYear = getDate(league,date)
-            date=dateYear[0]
-            year=dateYear[1]
+        if (league == "nfl"){
+            //TODO: current code to find most recent nfl date is on server, triggered by 0 values. Could be moved to frontend for performance/code consistency
+            $scope.loadGamesByWeek(league,0,0)
         }
+        else{
+            date = new Date()
+            $scope.loadGamesByDate(league,date)
+        }
+        //Load list of recent games to be used for typeahead searching
         $http({
-            url: "/games/",
+            url: "/recentgames/",
+            method: 'POST',
+            data: { 'league':$scope.league,
+                    'numGames':500}
+        }).then(function success(response){
+            //Load searchable array of games as strings
+            $scope.recentGames = gamesAsStrings(response.data)
+        },function error(){
+            console.log("No game data found :(")
+        })
+    }
+
+    //for leagues where games played daily, like nba, mlb, etc
+    $scope.loadGamesByDate = function(league,date){
+        formattedDate = formatDate(league,date)
+        //Load game results to be rendered on page
+        $http({
+            url: "/gamesByDate/",
             method: 'POST',
             data: { 'league':league,
-                    'date':date,
+                    'date':formattedDate}
+        }).then(function success(response){
+            $scope.games = response.data
+        },function error(){
+            console.log("No game data found :(")
+        })
+    }
+
+    //for leagues where games played weekly, like nfl
+    $scope.loadGamesByWeek = function(league,week,year){
+        $http({
+            url: "/gamesByWeek/",
+            method: 'POST',
+            data: { 'league':league,
+                    'week':week,
                     'year':year}
         }).then(function success(response){
             $scope.games = response.data
         },function error(){
             console.log("No game data found :(")
         })
+    }
+
+    var gamesAsStrings = function(games){
+        return games.map(gameDict => gameDict["awayTeam"] + " @ " + gameDict["homeTeam"] + ", " + gameDict["date"])
     }
 
     init();

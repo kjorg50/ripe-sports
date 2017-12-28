@@ -12,23 +12,43 @@ from django.core.serializers.json import DjangoJSONEncoder
 def index(request):
     return render(request,'RipeSportsApp/index.html');# Create your views here.
 
-def getGames(request):
+def getGamesByDate(request):
     if request.method=="POST":
         postData = json.loads(request.body)
-        #Post request holds date and year for which the games are wanted
+        #Post request holds date for which the games are wanted
+        league = postData.get("league")
+        date = postData.get("date")
+        games = list(Game.objects.filter(date=date,league=league).values('homeTeam', 'awayTeam','prettyDate','date'))
+        #Special django serializer needed for serializing objects
+        return HttpResponse(json.dumps(games, cls=DjangoJSONEncoder),content_type='application/json')
+
+def getGamesByWeek(request):
+    if request.method=="POST":
+        postData = json.loads(request.body)
+        #Post request holds week and year for which the games are wanted
         league = postData.get("league")
         year = postData.get("year")
-        date = postData.get("date")
-        print league, year, date
-        if league == "nfl" and (year + date == 0):
+        week = postData.get("week")
+        if year + week == 0:
             curr_nfl_week = get_current_nfl_week()
-            date = curr_nfl_week['current_week']
+            week = curr_nfl_week['current_week']
             year = curr_nfl_week['year']
-        games = list(Game.objects.filter(date=date,year=year,league=league).values('homeTeam', 'awayTeam', 'date','year'))
+        prettyWeek = "Week "+str(week)
+        games = list(Game.objects.filter(prettyDate=prettyWeek,league=league,date__year=year).values('homeTeam', 'awayTeam','prettyDate'))
         #Special django serializer needed for serializing objects
         return HttpResponse(json.dumps(games, cls=DjangoJSONEncoder),content_type='application/json')
 
 
+def getRecentGames(request):
+    if request.method=="POST":
+        postData = json.loads(request.body)
+        league = postData.get("league")
+        numGames = postData.get("numGames")
+        today = date.today()
+        #get last <numGames> games played
+        games = list(Game.objects.filter(league=league, date__lte=today).order_by('-date').values('homeTeam', 'awayTeam', 'date')[:numGames])
+        #Special django serializer needed for serializing objects
+        return HttpResponse(json.dumps(games, cls=DjangoJSONEncoder),content_type='application/json')
 """
 Functions for NFL date calculations
 """
