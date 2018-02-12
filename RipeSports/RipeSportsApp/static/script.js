@@ -56,8 +56,8 @@ function stopVideo() {
   document.getElementById("player").style.display = "none";
 }
 
-
-function formatDate(league,date) {
+//format javascript date object into sql date format used to index games
+function formatDate(date) {
     d = date.getDate()
     m = date.getMonth()+1
     y = date.getFullYear()
@@ -90,14 +90,20 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
             'link'
         }
     */
-    service.getYtLink = function(searchString) {
+    service.getYtLink = function(searchString,gameDate) {
+        //searchString = "Boston Celtics Toronto Raptors full game highlight 2018 february 06"
+        endDate = new Date(gameDate)
+        endDate.setDate(endDate.getDate()+4)
+        endDate = formatDate(endDate)
         return $q(function(resolve, reject) {
             if(googleApiReady) {
                 var ytSearchResults = [];
                 var request = gapi.client.youtube.search.list({
                     q: searchString,
                     part: 'snippet',
-                    maxResults: 10
+                    maxResults: 10,
+                    publishedAfter:gameDate+"T00:00:00Z",
+                    publishedBefore:endDate+"T00:00:00Z",
                 });
                 request.execute(function(response) {
                     if(response.result.pageInfo.totalResults == 0) {
@@ -113,7 +119,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
                             ytSearchResults.push({
                                 'title': item.snippet.title,
                                 'channel': item.snippet.channel,
-                                'publishedAt': item.snippet.published_at,
+                                'publishedAt': item.snippet.publishedAt,
                                 'thumbUrl': vidThumburl,
                                 'thumbImg': vidThumbimg,
                                 'id': vidId,
@@ -164,98 +170,164 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         $scope.setLeague('nba')
         $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        searchSettings = {
+            'nba':{
+                'channels':['MLG'],
+                'channelMatch':5,
+                'maxMinutes':15,
+                'searchSupplement':'full game highlight',
+                'goodWords':['highlight','recap'],
+                'teamNameMatch':10,
+                'tryAgainScore':0
+            },
+            'nfl':{
+                'channels':['NFL'],
+                'channelMatch':10,
+                'maxMinutes':10,
+                'searchSupplement':'',
+                'goodWords':['highlight','recap'],
+                'teamNameMatch':1,
+                'tryAgainScore':0
+            },
+            'mlb':{
+                'channels':['MLB'],
+                'channelMatch':10,
+                'maxMinutes':10,
+                'searchSupplement':'',
+                'goodWords':['highlight','recap'],
+                'teamNameMatch':1,
+                'tryAgainScore':0
+            }
+        }
     }
 
-    $scope.debugSearch = function(entry) {
-        //currently unused. helpful for tuning search algs becaue displays results and scoring breakdown of top links found
-        var track = {
-            'artist': entry.artist,
-            'title': entry.title,
-            'ytlink': entry.ytlink,
-            'entryType': entry.entryType
-        };
-        if(track.artist === "" && track.title == "" && track.ytlink == "") {
-            document.getElementById("artist_input").focus();
-            return;
+    debugSearch = function(game) {
+        for(i=0;i<4;i++){
+            findNthBestLink(game, i).then(function(results) {
+                $scope.linkData.push(results)
+            }, function error(response) {
+                $scope.linkData = ["failed"]
+            });
         }
-        findNthBestLink(track, 2).then(function(results) {
-            $scope.linkData = results
-        }, function error(response) {
-            $scope.linkData = [{'title':"search failed"}]
-        });
+        
+    }
+
+    $scope.testAlg = function() {
+        numSuccess = 0
+        numFail = 0
+        failedGames = []
+        $scope.games.forEach(function(game){
+            findNthBestLink(game, 1).then(function(results) {
+                console.log("test "+game.awayTeam + " at " + game.homeTeam)
+                if(results.title.includes(game.homeTeam) & results.title.includes(game.awayTeam)){
+                    numSuccess += 1
+                }
+                else{
+                    numFail += 1
+                    console.log("FAILURE: " +game.awayTeam + " at " + game.homeTeam + " --->   " + results.title)
+                }
+                if (game == $scope.games[$scope.games.length-1]){
+                            console.log(numSuccess + "/" + (numSuccess+numFail) + "successful. ")
+
+                }
+            }, function error(response) {
+                alert("no results")
+            });
+        })
     }
 
     $scope.playHighlight = function(game){
-        findNthBestLink(game,1).then(function success(highlightLink){
-            //hand off highlightLink to youtube iframe api for playing
-            document.getElementById("player").style.display = "inline";
-            player.loadVideoById({videoId: highlightLink.id})
-        },function error(){
-            alert("Highlight not found :(")
+        if ($scope.debug){
+            $scope.linkData = []
+            debugSearch(game)
+        }
+        else{
+            findNthBestLink(game,1).then(function success(highlightLink){
+                //hand off highlightLink to youtube iframe api for playing
+                document.getElementById("player").style.display = "inline";
+                player.loadVideoById({videoId: highlightLink.id})
+            },function error(){
+                alert("Highlight not found :(")
+            })
+        }
+    }
+
+    //return the degree to which the team name matches
+    var teamNameMatch = function(team,title){
+        numMatch = 0
+        teamWords = team.split()
+        teamWords.forEach(function(word,i){
+            if(title.includes(word)){
+                numMatch += 1
+            }
         })
+        return (numMatch/teamWords.length).toFixed(2)
     }
 
     var findNthBestLink = function(game, n) {
         return $q(function(resolve, reject) {
-            var favoriteChannels = {
-                    "mlb":"MLB",
-                    "nba":"Motion Station",
-                    "nfl":"NFL"
-                }
-            var goodWords = ["highlight", "highlights", "recap"]
-            var searchString = game.homeTeam+" "+game.awayTeam+" "+game.date+" "+favoriteChannels[$scope.league]
-            ytService.getYtLink(searchString).then(function success(results) {
-                var scoreIndex = [];
-                results.forEach(function(result, i) {
-                    var matchScore = i;
-                    // See https://stackoverflow.com/a/29153059/1092403 for ISO 8601 example
-                    // Extract the hours and mintutes of the duration (assuming no videos are
-                    // over a day long)
-                    var duration = result['duration'].match(iso8601DurationRegex);
-                    var hours = duration[6] === undefined ? 0 : duration[6];
-                    var minutes = duration[7] === undefined ? 0 : duration[7];
-                    //match uploader
-                    if(favoriteChannels[$scope.league] == result['channel']){
-                        matchScore -= 10;
+            ytHelp = searchSettings[$scope.league]
+            searchAttempts = [
+                [game.homeTeam,game.awayTeam,game.prettyDate,ytHelp['searchSupplement']].join(' '),
+                [game.homeTeam,game.awayTeam,ytHelp['searchSupplement']].join(' '),
+                [game.homeTeam,game.awayTeam,game.date.replace(/-/g,' '),ytHelp['searchSupplement']].join(' ')
+            ]
+            bestScoreSoFar = 10000
+            bestResultSoFar = null
+            searchAttempts.forEach(function(searchString,j){
+                ytService.getYtLink(searchString,game.date).then(function success(results) {
+                    var scoreIndex = [];
+                    results.forEach(function(result, i) {
+                        var matchScore = i;
+                        // See https://stackoverflow.com/a/29153059/1092403 for ISO 8601 example
+                        // Extract the hours and mintutes of the duration (assuming no videos are
+                        // over a day long)
+                        var duration = result['duration'].match(iso8601DurationRegex);
+                        var hours = duration[6] === undefined ? 0 : duration[6];
+                        var minutes = duration[7] === undefined ? 0 : duration[7];
+                        //match uploader
+                        if(ytHelp['channels'].includes(result['channel'])){
+                            matchScore -= ytHelp['channelMatch'];
+                        }
+                        //match team names and date
+                        matchScore -= teamNameMatch(game.homeTeam,result['title'])*ytHelp['teamNameMatch']
+                        matchScore -= teamNameMatch(game.awayTeam,result['title'])*ytHelp['teamNameMatch']
+                        //if(result['title'].indexOf(game.homeTeam) >= 0) {
+                        //    matchScore -= ytHelp['teamNameMatch'];
+                        //}
+                        //if(result['title'].indexOf(game.awayTeam) >= 0) {
+                        //    matchScore -= ytHelp['teamNameMatch'];
+                        //}
+                        if(hours > 0){
+                            matchScore += 1000;
+                        }
+                        if(minutes > ytHelp['maxMinutes']){
+                            matchScore += 100;
+                        }
+                        result['algScore']=matchScore //this is for debugging purposes
+                        result['originalOrder']=i//this is for debugging purposes
+                        scoreIndex.push([i, matchScore])    
+                    });
+                    var bestToWorst = scoreIndex.sort(function(a, b) {
+                        return a[1] - b[1];
+                    })
+                    var nthBestIndex = bestToWorst[n - 1][0]
+                    if(bestToWorst[n-1][1] < ytHelp['tryAgainScore']){
+                        resolve(results[nthBestIndex]);
                     }
-                    //match upload date
-                    if(datesCheckOut(result['publishedAt'],game.date)){
-                        matchScore -= 5;
+                    else{
+                        bestResultSoFar = bestToWorst[n-1][1] < bestScoreSoFar ? results[bestToWorst[n-1][0]] : null
+                        if(j == searchAttempts.length-1){
+                            //no results scored better than the threshold, so send the best scored
+                            resolve(bestResultSoFar)
+                        }
                     }
-                    //match team names and date
-                    if(result['title'].indexOf(game.homeTeam) >= 0) {
-                        matchScore -= 1;
-                    }
-                    if(result['title'].indexOf(game.awayTeam) >= 0) {
-                        matchScore -= 1;
-                    }
-                    if(result['title'].indexOf(game.date) >= 0) {
-                        matchScore -= 1;
-                    }
-                    if(hours > 0){
-                        matchScore += 1000;
-                    }
-                    if(minutes > 10){
-                        matchScore += 100;
-                    }
-                    scoreIndex.push([i, matchScore])
+                    }, function error() {
+                    reject()
                 });
-                var bestToWorst = scoreIndex.sort(function(a, b) {
-                    return a[1] - b[1];
-                })
-                var nthBestIndex = bestToWorst[n - 1][0]
-                resolve(results[nthBestIndex]);
-            }, function error() {
-                reject()
-            });
+            })
         })
 
-    }
-
-    var datesCheckOut = function(uploadDate, gameDate){
-        /*TODO*/
-        var tolerance = "1w"
-        return false
     }
 
     $scope.setLeague = function(league){
@@ -284,7 +356,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     //for leagues where games played daily, like nba, mlb, etc
     $scope.loadGamesByDate = function(league,date){
-        formattedDate = formatDate(league,date)
+        formattedDate = formatDate(date)
         //Load game results to be rendered on page
         $http({
             url: "/gamesByDate/",

@@ -57,6 +57,24 @@
         <option></option>
     </select>
     <button ng-click="loadGamesByWeek('nfl',week,year)" ng-show="league=='nfl'">Go</button>
+    Debug Results: <input type="checkbox" ng-model="debug">
+    <button ng-click="testAlg()">Test Algorithm</button>
+    <div ng-show="debug" ng-repeat="r in linkData" align="left">
+                <b>TITLE:</b> {{r.title}}<br>
+                <b>SCORE:</b> {{r.algScore}}<br>
+                <b>UPLOAD DATE:</b> {{r.publishedAt}}<br>
+                <b>ORIGINAL ORDER:</b> {{r.originalOrder}}<br>
+                <b>VIEWS:</b> {{r.views}}<br>
+                <b>LENGTH:</b> {{r.duration}}<br>
+                <b>LIKES:</b> {{r.likes}}<br>
+                <b>DISLIKES:</b> {{r.dislikes}}<br>
+                <b>FAVORITES:</b> {{r.favorites}}<br>
+                <b>COMMENTS:</b> {{r.comments}}<br>
+                <a href="{{r.link}}" target="_blank">LINK</a><br>
+
+                <br>
+                <br>
+            </div>
     <table class="table">
         <tr>
             <th>Home Team</th>

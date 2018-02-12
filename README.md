@@ -11,9 +11,9 @@ A one-time step is required to apply the database migrations
 
 ```python manage.py migrate```
 
-Run the NFL scraper to gather the latest game data (as often as needed)
+Run the scraper to gather all game data (as often as needed). To load a smaller set of game data see the section on using scrapeSports.py below.
 
-```python scrapeNFL.py```
+```python scrapeSports.py everything```
 
 ## Usage
 
@@ -51,8 +51,8 @@ Running local server:
 9) `python manage.py migrate`
 10) good to go. rerun the scraper to reload the renewed database.
 
-#Using sportsScraper.py
-1) `python sportsScraper.py everything` : Download all MLB, NBA, NFL games since the year 2000 and insert them into the database (takes nearly an hour)
-2) `python sportsScraper.py <league> <startYear> <endYear>` : Download games from specific period of time and for a specific league. Ex `python sportsScraper.py mlb 2017 2018` would download all mlb games from the year 2017 only.
+#Using scrapeSports.py
+1) `python scrapeSports.py everything` : Download all MLB, NBA, NFL games since the year 2000 and insert them into the database (takes nearly an hour)
+2) `python scrapeSports.py <league> <startYear> <endYear>` : Download games from specific period of time and for a specific league. Ex `python scrapeSports.py mlb 2017 2018` would download all mlb games from the year 2017 only.
 3) Emptying the database: the `RipeSportsApp_game` table which holds all games is set up to prevent duplicate entries. If the scraper is run for the same period of time twice in a row it will cause many "duplicate insert" errors. (but in theory should still add the non-duplicate games into the db just fine). Regardless, to empty the database so it can be reloaded anew, run `python manage.py flush`. This will only clear the rows, not delete the tables or db.
 
