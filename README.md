@@ -23,7 +23,9 @@ Running local server:
 3) navigate to localhost:8000 on a browser
 
 ## MySQL Database
-### Install - this part is a bit hazy to me as its been a long time. Let me know if the following instructions don't work:
+### Install 
+This part is a bit hazy to me as its been a long time. Let me know if the following instructions don't work:
+
 1) Start by installing MySQL Community server from the site: https://dev.mysql.com/downloads/mysql/
 2) Add path to your .bash_profile: `export PATH=$PATH:/usr/local/mysql/bin`
 3) Start the server with the command: `mysql.server start`. This is a step you'll have to do always before the database can be used. The server should stay up until your computer is restarted or you explicitly close it though.
