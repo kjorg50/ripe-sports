@@ -22,39 +22,7 @@ googleApiClientReady = function() {
 // YouTube duration format regex
 var iso8601DurationRegex = /(-)?P(?:([\.,\d]+)Y)?(?:([\.,\d]+)M)?(?:([\.,\d]+)W)?(?:([\.,\d]+)D)?T(?:([\.,\d]+)H)?(?:([\.,\d]+)M)?(?:([\.,\d]+)S)?/;
 
-// loads the IFrame Player API code asynchronously.
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-// creates an <iframe> (and YouTube player)
-// after the API code downloads.
-var player;
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('player', {
-    height: '390',
-    width: '640',
-    events: {
-      'onReady': onPlayerReady,
-      'onStateChange': onPlayerStateChange
-    }
-  });
-}
 
-function onPlayerReady(event) {
-  event.target.playVideo();
-}
-
-function onPlayerStateChange(event) {
-  if(event.data === YT.PlayerState.ENDED) {
-        stopVideo();
-    }
-}
-
-function stopVideo() {
-  player.stopVideo();
-  document.getElementById("player").style.display = "none";
-}
 
 //format javascript date object into sql date format used to index games
 function formatDate(date) {
@@ -90,7 +58,7 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
             'link'
         }
     */
-    service.getYtLink = function(searchString,gameDate) {
+    service.getYtLink = function(searchString,gameDate,embeddableOnly) {
         //searchString = "Boston Celtics Toronto Raptors full game highlight 2018 february 06"
         endDate = new Date(gameDate)
         endDate.setDate(endDate.getDate()+4)
@@ -98,12 +66,16 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
         return $q(function(resolve, reject) {
             if(googleApiReady) {
                 var ytSearchResults = [];
+
                 var request = gapi.client.youtube.search.list({
                     q: searchString,
                     part: 'snippet',
                     maxResults: 10,
                     publishedAfter:gameDate+"T00:00:00Z",
                     publishedBefore:endDate+"T00:00:00Z",
+                    type:'video',
+                    videoEmbeddable: embeddableOnly ? 'true' : 'any',
+                    videoSyndicated: embeddableOnly ? 'true' : 'any'
                 });
                 request.execute(function(response) {
                     if(response.result.pageInfo.totalResults == 0) {
@@ -166,116 +138,211 @@ app.factory('ytService', ['$http', '$q', function($http, $q) {
 
 app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$timeout', 'ytService', function($scope, $http, $location, $window, $q, $timeout, ytService) {
 
+    // loads the IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        // creates an <iframe> (and YouTube player)
+        // after the API code downloads.
+        window.onYouTubeIframeAPIReady = function(){
+          $scope.player = new YT.Player('player', {
+            height: '390',
+            width: '640',
+            events: {
+              'onReady': onPlayerReady,
+              'onStateChange': onPlayerStateChange,
+              'onError':onError
+            }
+          });
+        }
+
     var init = function() {
         $scope.setLeague('nba')
-        $scope.weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        $scope.weeks = ['Preseason Week 1', 'Preseason Week 2', 'Preseason Week 3', 'Preseason Week 4', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10', 'Week 11', 'Week 12', 'Week 13', 'Week 14', 'Week 15', 'Week 16', 'Week 17', 'Wild Card', 'Divisional Round', 'Conference Championships', 'Pro Bowl', 'Super Bowl']
         $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
-        searchSettings = {
-            'nba':{
-                'channels':['MLG'],
-                'channelMatch':5,
-                'maxMinutes':15,
-                'searchSupplement':'full game highlight',
-                'goodWords':['highlight','recap'],
-                'teamNameMatch':10,
-                'tryAgainScore':0
-            },
-            'nfl':{
-                'channels':['NFL'],
-                'channelMatch':10,
-                'maxMinutes':10,
-                'searchSupplement':'',
-                'goodWords':['highlight','recap'],
-                'teamNameMatch':1,
-                'tryAgainScore':0
-            },
-            'mlb':{
-                'channels':['MLB'],
-                'channelMatch':10,
-                'maxMinutes':10,
-                'searchSupplement':'',
-                'goodWords':['highlight','recap'],
-                'teamNameMatch':1,
-                'tryAgainScore':0
-            }
+        $scope.embeddable = true
+        $scope.showYoutubeBackupLink = false
+    }
+
+
+    function onPlayerReady(event) {
+        //called when youtube player initialized
+    }
+
+    function onPlayerStateChange(event) {
+      if(event.data == YT.PlayerState.ENDED) {
+            stopVideo();
+        }
+        if(event.data == -1){
+            $scope.embeddable = true
+            //$scope.$apply()
         }
     }
 
-    debugSearch = function(game) {
-        for(i=0;i<4;i++){
-            findNthBestLink(game, i).then(function(results) {
-                $scope.linkData.push(results)
+    function onError(event){
+        $scope.showPlayer = false
+        switch(event.data){
+            case 2:
+                console.log('request contains an invalid parameter value')
+                break
+            case 5:
+                console.log('The requested content cannot be played in an HTML5 player or another error related to the HTML5 player has occurred.')
+                break
+            case 100:
+                console.log('The video requested was not found. This error occurs when a video has been removed (for any reason) or has been marked as private.')
+                break
+            case 101:
+            case 150:
+                console.log('Uploader has blocked this content from embedded playback')
+                $scope.embeddable = false
+                break
+            default:
+                console.log('Unhandled error code: '+event.data)
+
+        }
+        $scope.$apply()
+    }
+
+    function stopVideo() {
+      $scope.player.stopVideo();
+      //document.getElementById("player").style.display = "none";
+      $scope.showPlayer = false
+    }
+
+    function getSearchParams(league,game){
+        switch(league){
+            case 'nfl':
+                homeTeamWords = game.homeTeam.split(' ')
+                homeTeam = homeTeamWords[homeTeamWords.length-1]
+                awayTeamWords = game.awayTeam.split(' ')
+                awayTeam = awayTeamWords[awayTeamWords.length-1]
+                return {
+                    'channels':['NFL'],
+                    'channelMatch':10,
+                    'maxMinutes':20,
+                    'keywords':[game.homeTeam,game.awayTeam,'nfl game highlight'].join(' '),
+                    'keywordMatch':1,
+                    'tryAgainScore':-5,
+                    'searchAttempts':[[homeTeam,awayTeam,game.prettyDate,'nfl game highlights'].join(' '),
+                                    [homeTeam,awayTeam,'nfl game highlights'].join(' '),
+                                    [homeTeam,awayTeam,game.date.replace(/-/g,' '),'nfl game highlight'].join(' ')]
+                                }
+                break
+
+            case 'mlb':
+                return {
+                    'channels':['MLB'],
+                    'channelMatch':10,
+                    'maxMinutes':20,
+                    'keywords':[game.homeTeam,game.awayTeam,'highlight'].join(' '),
+                    'keywordMatch':1,
+                    'tryAgainScore':0,
+                    'searchAttempts':[[game.homeTeam,game.awayTeam,game.prettyDate,'full game highlight'].join(' '),
+                                    [game.homeTeam,game.awayTeam,'full game highlight'].join(' '),
+                                    [game.homeTeam,game.awayTeam,game.date.replace(/-/g,' '),'full game highlight'].join(' ')]
+                                }
+                break
+
+            case 'nba':
+                return {
+                    'channels':['MLG'],
+                    'channelMatch':5,
+                    'maxMinutes':20,
+                    'keywords':[game.homeTeam,game.awayTeam,'highlight'].join(' '),
+                    'keywordMatch':20,
+                    'tryAgainScore':-10,
+                    'searchAttempts':[[game.homeTeam,game.awayTeam,game.prettyDate,'full game highlight'].join(' '),
+                                    [game.homeTeam,game.awayTeam,'full game highlight'].join(' '),
+                                    [game.homeTeam,game.awayTeam,game.date.replace(/-/g,' '),'full game highlight'].join(' ')]
+                                }
+                break
+        }
+
+    }
+
+    debugSearch = function(game,embeddableOnly) {
+            getBestLink(game, embeddableOnly).then(function(results) {
+                $scope.linkData = results
             }, function error(response) {
                 $scope.linkData = ["failed"]
             });
-        }
         
     }
 
-    $scope.testAlg = function() {
+    //tests all the games on the page. recursive because of asynchronous nature of finding links. call testAlg(0) to use it
+    $scope.testAlg = function(i) {
         numSuccess = 0
         numFail = 0
         failedGames = []
-        $scope.games.forEach(function(game){
-            findNthBestLink(game, 1).then(function(results) {
-                console.log("test "+game.awayTeam + " at " + game.homeTeam)
-                if(results.title.includes(game.homeTeam) & results.title.includes(game.awayTeam)){
+        if(i+1<$scope.games.length){
+            game = $scope.games[i]
+            console.log("testing "+game.awayTeam + " at " + game.homeTeam)
+            getBestLink(game, 0).then(function(results) {
+                best = results[0]
+                if(best.title.includes(game.homeTeam) & best.title.includes(game.awayTeam)){
                     numSuccess += 1
                 }
                 else{
                     numFail += 1
-                    console.log("FAILURE: " +game.awayTeam + " at " + game.homeTeam + " --->   " + results.title)
+                    console.log("FAILURE: " +game.awayTeam + " at " + game.homeTeam + " --->   " + best.title)
                 }
-                if (game == $scope.games[$scope.games.length-1]){
-                            console.log(numSuccess + "/" + (numSuccess+numFail) + "successful. ")
-
-                }
+                $scope.testAlg(i+1)
             }, function error(response) {
                 alert("no results")
             });
-        })
+        }
     }
 
-    $scope.playHighlight = function(game){
+    $scope.playHighlight = function(game,embeddableOnly){
+        $scope.currGame = game
         if ($scope.debug){
             $scope.linkData = []
             debugSearch(game)
         }
         else{
-            findNthBestLink(game,1).then(function success(highlightLink){
+            getBestLink(game,embeddableOnly).then(function success(results){
+                best = results[0]
+                if (embeddableOnly){
+                    $scope.showYoutubeBackupLink = true
+                }
+                else{
+                    $scope.vidUrl = best.link
+                    $scope.showYoutubeBackupLink = false
+                }
                 //hand off highlightLink to youtube iframe api for playing
-                document.getElementById("player").style.display = "inline";
-                player.loadVideoById({videoId: highlightLink.id})
+                $scope.showPlayer = true
+                $scope.player.loadVideoById({videoId: best.id})
             },function error(){
                 alert("Highlight not found :(")
             })
         }
     }
 
+    $scope.search = function(searchStr){
+        $scope.playHighlight($scope.recentGames[searchStr])
+    }
+
     //return the degree to which the team name matches
-    var teamNameMatch = function(team,title){
+    var keywordMatch = function(keywords,title){
         numMatch = 0
-        teamWords = team.split()
+        teamWords = keywords.toLowerCase().split(' ')
         teamWords.forEach(function(word,i){
-            if(title.includes(word)){
+            if(title.toLowerCase().includes(word)){
                 numMatch += 1
             }
         })
         return (numMatch/teamWords.length).toFixed(2)
     }
 
-    var findNthBestLink = function(game, n) {
+    var getBestLink = function(game,embeddableOnly) {
         return $q(function(resolve, reject) {
-            ytHelp = searchSettings[$scope.league]
-            searchAttempts = [
-                [game.homeTeam,game.awayTeam,game.prettyDate,ytHelp['searchSupplement']].join(' '),
-                [game.homeTeam,game.awayTeam,ytHelp['searchSupplement']].join(' '),
-                [game.homeTeam,game.awayTeam,game.date.replace(/-/g,' '),ytHelp['searchSupplement']].join(' ')
-            ]
+            ytHelp = getSearchParams($scope.league,game)
             bestScoreSoFar = 10000
             bestResultSoFar = null
-            searchAttempts.forEach(function(searchString,j){
-                ytService.getYtLink(searchString,game.date).then(function success(results) {
+            scoredResults = []
+            ytHelp['searchAttempts'].forEach(function(searchString,j){
+                ytService.getYtLink(searchString,game.date,embeddableOnly).then(function success(results) {
                     var scoreIndex = [];
                     results.forEach(function(result, i) {
                         var matchScore = i;
@@ -290,14 +357,8 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                             matchScore -= ytHelp['channelMatch'];
                         }
                         //match team names and date
-                        matchScore -= teamNameMatch(game.homeTeam,result['title'])*ytHelp['teamNameMatch']
-                        matchScore -= teamNameMatch(game.awayTeam,result['title'])*ytHelp['teamNameMatch']
-                        //if(result['title'].indexOf(game.homeTeam) >= 0) {
-                        //    matchScore -= ytHelp['teamNameMatch'];
-                        //}
-                        //if(result['title'].indexOf(game.awayTeam) >= 0) {
-                        //    matchScore -= ytHelp['teamNameMatch'];
-                        //}
+                        matchScore -= keywordMatch(ytHelp['keywords'],result['title'])*ytHelp['keywordMatch']
+
                         if(hours > 0){
                             matchScore += 1000;
                         }
@@ -306,23 +367,22 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                         }
                         result['algScore']=matchScore //this is for debugging purposes
                         result['originalOrder']=i//this is for debugging purposes
-                        scoreIndex.push([i, matchScore])    
-                    });
-                    var bestToWorst = scoreIndex.sort(function(a, b) {
-                        return a[1] - b[1];
+                        scoredResults.push([result,matchScore])
+                        bestResultSoFar = matchScore < bestScoreSoFar ? result : bestResultSoFar
+                        bestScoreSoFar = matchScore < bestScoreSoFar ? matchScore : bestScoreSoFar
                     })
-                    var nthBestIndex = bestToWorst[n - 1][0]
-                    if(bestToWorst[n-1][1] < ytHelp['tryAgainScore']){
-                        resolve(results[nthBestIndex]);
-                    }
-                    else{
-                        bestResultSoFar = bestToWorst[n-1][1] < bestScoreSoFar ? results[bestToWorst[n-1][0]] : null
-                        if(j == searchAttempts.length-1){
-                            //no results scored better than the threshold, so send the best scored
-                            resolve(bestResultSoFar)
+                    if(bestScoreSoFar < ytHelp['tryAgainScore'] | j+1 == ytHelp['searchAttempts'].length){
+                        scoredResults.sort(function(a,b){
+                            return a[1]-b[1]
+                        })
+                        if (scoredResults[0][0] != bestResultSoFar){
+                            console.log('best result got lost')
                         }
+                        resolve(scoredResults.map(function(el){
+                            return el[0]
+                        }));
                     }
-                    }, function error() {
+                }, function error() {
                     reject()
                 });
             })
@@ -332,15 +392,6 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
 
     $scope.setLeague = function(league){
         $scope.league = league
-        if (league == "nfl"){
-            //TODO: current code to find most recent nfl date is on server, triggered by 0 values. Could be moved to frontend for performance/code consistency
-            $scope.loadGamesByWeek(league,0,0)
-        }
-        else{
-            date = new Date()
-            $scope.loadGamesByDate(league,date)
-        }
-        //Load list of recent games to be used for typeahead searching
         $http({
             url: "/recentgames/",
             method: 'POST',
@@ -348,7 +399,9 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                     'numGames':500}
         }).then(function success(response){
             //Load searchable array of games as strings
-            $scope.recentGames = gamesAsStrings(response.data)
+            $scope.recentGames = searchableGames(response.data)
+            $scope.searchbarGames = Object.keys($scope.recentGames)
+            $scope.games = response.data.slice(0,20)
         },function error(){
             console.log("No game data found :(")
         })
@@ -385,8 +438,20 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         })
     }
 
-    var gamesAsStrings = function(games){
-        return games.map(gameDict => gameDict["awayTeam"] + " @ " + gameDict["homeTeam"] + ", " + gameDict["date"])
+    var searchableGames = function(games){
+        out = {}
+        games.forEach(function(game){
+            out[gameAsString(game)]=game
+        })
+        return out
+    }
+
+    var gameAsString = function(game){
+        homeTeamWords = game.homeTeam.split(' ')
+        homeTeam = homeTeamWords[homeTeamWords.length-1]
+        awayTeamWords = game.awayTeam.split(' ')
+        awayTeam = awayTeamWords[awayTeamWords.length-1]
+        return awayTeam + " @ " + homeTeam + " " + game.date
     }
 
     init();

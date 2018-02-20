@@ -26,9 +26,9 @@
         <div class="col-sm-3 col-md-3">
             <form class="navbar-form" role="search">
             <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search Recent {{league}}" name="q" ng-model="searchStr" uib-typeahead="game for game in recentGames | filter:$viewValue | limitTo:100">
+                <input type="text" class="form-control" placeholder="Recent {{league}} games" name="q" ng-model="searchStr" uib-typeahead="game for game in searchbarGames | filter:$viewValue | limitTo:100">
                 <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit" ng-click="playHighlight(searchStr)"><i class="fas fa-search"></i></button>
+                    <button class="btn btn-default" type="submit" ng-click="search(searchStr)"><i class="fas fa-search"></i></button>
                 </div>
             </div>
             </form>
@@ -36,14 +36,23 @@
         <!-- /.navbar-collapse -->
 
     </nav>
-    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-    <div id="player" style="display:none"></div>
-    <div>{{player_show}}</div>
-    <!--TODO remove:
-    <input type="text" ng-model="gameEntry" >
-    <button ng-click="search(gameEntry)" >Get Highlight</button>
-    Your Highlight Link: <a target="_blank" href="{{ result }}" >{{result}}</a>
-    <br>-->
+    <div ng-show="showPlayer">
+        <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+        <div id="player" ></div>
+    </div>
+    <div ng-show="!embeddable">
+        Youtube has restricted this video :(
+        <a target="_blank" ng-href="{{vidUrl}}">Watch it on youtube and risk seeing spoilers elsewhere on the page</a>
+        <br>
+        OR
+        <br>
+        <a href="#" ng-click="playHighlight(currGame,true)">load next best result here</a>
+    </div>
+    <div ng-show="showYoutubeBackupLink">
+        ^^^Did the "next best" turn out to be complete garbage?
+        You might just have to watch the highlight on youtube: <a target="_blank" ng-href="{{vidUrl}}">Go there now</a>
+    </div>
+
     <label for="date" ng-show="league!='nfl'">Games for Date</label>
     <input name="date" type="date" ng-model="date" ng-show="league!='nfl'">
     <button ng-click="loadGamesByDate(league,date)" ng-show="league!='nfl'">Go</button>
@@ -57,8 +66,9 @@
         <option></option>
     </select>
     <button ng-click="loadGamesByWeek('nfl',week,year)" ng-show="league=='nfl'">Go</button>
+    <!--DEBUGGING AND TESTING: uncomment this for debugging and testing algorithm
     Debug Results: <input type="checkbox" ng-model="debug">
-    <button ng-click="testAlg()">Test Algorithm</button>
+    <button ng-click="testAlg(0)">Test Algorithm</button>
     <div ng-show="debug" ng-repeat="r in linkData" align="left">
                 <b>TITLE:</b> {{r.title}}<br>
                 <b>SCORE:</b> {{r.algScore}}<br>
@@ -74,14 +84,15 @@
 
                 <br>
                 <br>
-            </div>
+    </div>
+    -->
     <table class="table">
         <tr>
             <th>Home Team</th>
             <th>Away Team</th>
             <th>Date</th>
         </tr>
-        <tr ng-repeat="game in games" ng-click="playHighlight(game)">
+        <tr ng-repeat="game in games" ng-click="playHighlight(game,false)">
             <td>{{ game.homeTeam }}</td>
             <td>{{ game.awayTeam }}</td>
             <td>{{ game.prettyDate }}</td>

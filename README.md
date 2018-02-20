@@ -56,3 +56,12 @@ Running local server:
 2) `python scrapeSports.py <league> <startYear> <endYear>` : Download games from specific period of time and for a specific league. Ex `python scrapeSports.py mlb 2017 2018` would download all mlb games from the year 2017 only.
 3) Emptying the database: the `RipeSportsApp_game` table which holds all games is set up to prevent duplicate entries. If the scraper is run for the same period of time twice in a row it will cause many "duplicate insert" errors. (but in theory should still add the non-duplicate games into the db just fine). Regardless, to empty the database so it can be reloaded anew, run `python manage.py flush`. This will only clear the rows, not delete the tables or db.
 
+## Debugging and Testing the Algorithm
+
+#Debug Results
+Uncomment the labeled commented section in `index.html`. The page will now have a "debug results" checkbox next to the go button. When it is checked and a highlight is requested, instead of loading the video found, the page will render the top 15 search results and details about them, including their original rank in the search results as well as their score given by the algorithm. This is useful when trying to see why a desired video did not make it to the top of the list and was used
+
+#Test Alg
+Uncomment the labeled commented section in `index.html`. The page will now have a "Test Alg" button next to the go button. When pressed, it will run the algorithm on all the games currently displayed on the page. For each, if the result returned outscores the corresponding `tryAgainScore` for that league, it is considered successful and if not, labeled as a failure. See the console for this output.
+
+
