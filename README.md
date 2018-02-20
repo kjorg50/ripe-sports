@@ -23,7 +23,9 @@ Running local server:
 3) navigate to localhost:8000 on a browser
 
 ## MySQL Database
-#Install - this part is a bit hazy to me as its been a long time. Let me know if the following instructions don't work:
+### Install 
+This part is a bit hazy to me as its been a long time. Let me know if the following instructions don't work:
+
 1) Start by installing MySQL Community server from the site: https://dev.mysql.com/downloads/mysql/
 2) Add path to your .bash_profile: `export PATH=$PATH:/usr/local/mysql/bin`
 3) Start the server with the command: `mysql.server start`. This is a step you'll have to do always before the database can be used. The server should stay up until your computer is restarted or you explicitly close it though.
@@ -36,7 +38,8 @@ Running local server:
     -`pymysql` : used by sportsScraper.py to insert rows into the database outside of the django runtime environment
 9) Set up database tables: `python manage.py makemigrations` followed by `python manage.py migrate`
 
-#Nuking your database - i'm sure there are ways to avoid this. Its the database equivalent of deleting a git repository and recloning because you don't want to deal with merging conflicts lol. But because of the small size of our project it's often the easiest way:
+### Nuking your database
+I'm sure there are ways to avoid this. It's the database equivalent of deleting a git repository and recloning because you don't want to deal with merging conflicts lol. But because of the small size of our project it's often the easiest way:
 
 1. Enter the Mysql command line tool by entering 'mysql -u root' in your command line (will be different if you used a password for your account)
 
@@ -51,7 +54,7 @@ Running local server:
 9) `python manage.py migrate`
 10) good to go. rerun the scraper to reload the renewed database.
 
-#Using scrapeSports.py
+## Using scrapeSports.py
 1) `python scrapeSports.py everything` : Download all MLB, NBA, NFL games since the year 2000 and insert them into the database (takes nearly an hour)
 2) `python scrapeSports.py <league> <startYear> <endYear>` : Download games from specific period of time and for a specific league. Ex `python scrapeSports.py mlb 2017 2018` would download all mlb games from the year 2017 only.
 3) Emptying the database: the `RipeSportsApp_game` table which holds all games is set up to prevent duplicate entries. If the scraper is run for the same period of time twice in a row it will cause many "duplicate insert" errors. (but in theory should still add the non-duplicate games into the db just fine). Regardless, to empty the database so it can be reloaded anew, run `python manage.py flush`. This will only clear the rows, not delete the tables or db.
