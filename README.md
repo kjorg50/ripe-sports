@@ -61,10 +61,10 @@ I'm sure there are ways to avoid this. It's the database equivalent of deleting 
 
 ## Debugging and Testing the Algorithm
 
-#Debug Results
+###Debug Results
 Uncomment the labeled commented section in `index.html`. The page will now have a "debug results" checkbox next to the go button. When it is checked and a highlight is requested, instead of loading the video found, the page will render the top 15 search results and details about them, including their original rank in the search results as well as their score given by the algorithm. This is useful when trying to see why a desired video did not make it to the top of the list and was used
 
-#Test Alg
+###Test Alg
 Uncomment the labeled commented section in `index.html`. The page will now have a "Test Alg" button next to the go button. When pressed, it will run the algorithm on all the games currently displayed on the page. For each, if the result returned outscores the corresponding `tryAgainScore` for that league, it is considered successful and if not, labeled as a failure. See the console for this output.
 
 
