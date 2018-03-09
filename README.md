@@ -24,11 +24,9 @@ Running local server:
 
 ## MySQL Database
 ### Install 
-This part is a bit hazy to me as its been a long time. Let me know if the following instructions don't work:
-
-1) Start by installing MySQL Community server from the site: https://dev.mysql.com/downloads/mysql/
-2) Add path to your .bash_profile: `export PATH=$PATH:/usr/local/mysql/bin`
-3) Start the server with the command: `mysql.server start`. This is a step you'll have to do always before the database can be used. The server should stay up until your computer is restarted or you explicitly close it though.
+1) Start by installing MySQL with homebrew: `brew install mysql`
+2) To have a background service manage starting mysql whenever you logon: `brew services start mysql`
+3) Instead i just start the server with the command: `mysql.server start`. This is a step I do always before the database can be used. The server should stay up until your computer is restarted or you explicitly close it though.
 4) Create a new admin user: `mysqladmin -u root&nbsp;password yourpassword` Note: I don't use a password for my mysql dev admin. If you use a password or make a user named other than `root` you'll need to modify the database credentials settings set in `settings.py` and at the top of `scrapeSports.py` 
 5) Open mysql command line interface: `mysql -u root -p <password>` (or just `mysql -u root` if you set no password)
 6) Create a copy of the ripesports database: `CREATE DATABASE ripesportsdb` (NOTE: changes to the database's name will require updating `settings.py` and `scrapeSports.py`)
