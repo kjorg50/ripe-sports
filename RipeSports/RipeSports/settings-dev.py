@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('RIPESPORTS_KEY')
+SECRET_KEY = 'tv#m#bd_kvl-vwjp!5y+i51#@a-&*%2r&$40-d+knvv-*q+le3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['ripesports.com','www.ripesports.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -78,9 +78,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ripesportsdb',
-        'USER': 'ripesports_adm',
-        'PASSWORD': os.environ.get('RIPESPORTS_DB_PASSWORD'),
-        'HOST': 'ripesportsadmin.ripesports.com',
+        'USER': 'root',
+        #'PASSWORD': 
+        'HOST': 'localhost',
         'PORT': '3306'
     }
 }
@@ -124,8 +124,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_ROOT = os.path.dirname(BASE_DIR)+'/public/static/'
 STATIC_URL = '/static/'
-# Override production variables if DJANGO_DEVELOPMENT env variable is set
-if os.environ.get('DJANGO_DEVELOPMENT') is not None:
-   from settings_dev import *
