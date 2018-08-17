@@ -7,11 +7,19 @@ import pymysql.cursors
 import pymysql
 import datetime
 
-HOST = 'localhost'
-DATABASE = 'ripesportsdb'
-USER = 'root'
-PASSWORD =''
 
+if os.environ.get('DJANGO_DEVELOPMENT') is not None:
+    HOST = 'localhost'
+    DATABASE = 'ripesportsdb'
+    USER = 'root'
+    PASSWORD =''
+else:
+    HOST='ripesportsadmin.ripesports.com'
+    DATABASE = 'ripesportsdb'
+    USER = 'ripesports_adm'
+    PASSWORD = os.environ.get('RIPESPORTS_DB_PASSWORD')
+
+    
 scraperSettings = {
     'nba':{
         'league':'nba',

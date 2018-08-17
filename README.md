@@ -34,6 +34,9 @@ Running local server:
 8) pip install dependencies:
     -`mysqlclient` : used by Django for mysql api
     -`pymysql` : used by sportsScraper.py to insert rows into the database outside of the django runtime environment
+    NOTE: for some python versions this might not work. (2.7.14 for example) Instead, install the `pymysql` module instead. Then, in the `__init__.py` file located in your dango root folder (same folder that contains `settings.py`) add these lines:
+	`import pymysql`
+	`pymysql.install_as_MySQLdb()`
 9) Set up database tables: `python manage.py makemigrations` followed by `python manage.py migrate`
 
 ### Nuking your database
