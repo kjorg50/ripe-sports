@@ -19,7 +19,7 @@ else:
     USER = 'ripesports_adm'
     PASSWORD = os.environ.get('RIPESPORTS_DB_PASSWORD')
 
-    
+
 scraperSettings = {
     'nba':{
         'league':'nba',
@@ -117,7 +117,10 @@ def getDailyLeagueGames(league,startYear,endYear):
                 strDay = str(day) if day >= 10 else "0"+str(day)
                 url = scrapeConf['url']+str(year)+strMonth+strDay
                 scrapedGames = scrapeESPNPage(scrapeConf['league'],year,url)
-                games += scrapedGames if scrapedGames != None else []
+                if scrapedGames != None:
+                    if month == 12: #exclude rollover into next year
+                        scrapedGames = [sg for sg in scrapedGames if sg[4].month == 12]
+                    games += scrapedGames
     #convert array of arrays into array of tuples
     games = [tuple(game) for game in games]
     #use sets to elimate duplicates! fuck yeah SETS
@@ -128,14 +131,13 @@ def getNFLGames(startYear,endYear):
     games = []
     for year in range(startYear, endYear):
         #get preseason games
-        preseasonUrls = [ "http://www.espn.com/nfl/schedule/_/week/"+str(i)+"/year/"+str(year)+"/seasontype/1" for i in range(2,5) ] + \
-                        [ "http://www.espn.com/nfl/schedule/_/year/"+str(year)+"/seasontype/1" ] #preseason week 4 is special
+        preseasonUrls = [ "http://www.espn.com/nfl/schedule/_/week/"+str(i)+"/year/"+str(year)+"/seasontype/1" for i in range(2,6) ] 
         for j,url in enumerate(preseasonUrls):
             scrapedGames = scrapeESPNPage('nfl',year,url)
             if scrapedGames != None:
                 #change pretty dates
                 for game in scrapedGames:
-                    game[3] = "Preseason Week " + str(j)
+                    game[3] = "Preseason Week " + str(j+1)
                 games += scrapedGames
 
         #get regular season games
@@ -149,42 +151,17 @@ def getNFLGames(startYear,endYear):
                 games += scrapedGames
 
         #get postseason games
-        #wildcard round
-        url = "http://www.espn.com/nfl/schedule/_/week/1/year/"+str(year)
-        scrapedGames = scrapeESPNPage('nfl',year,url)
-        if scrapedGames != None:
-            for game in scrapedGames:
-                game[3] = "Wild Card"
-            games += scrapedGames
-        #divisional playoff
-        url = "http://www.espn.com/nfl/schedule/_/week/2/year/"+str(year)
-        scrapedGames = scrapeESPNPage('nfl',year,url)
-        if scrapedGames != None:
-            for game in scrapedGames:
-                game[3] = "Divisional Round"
-            games += scrapedGames
-        #Conference championships
-        url = "http://www.espn.com/nfl/schedule/_/week/3/year/"+str(year)
-        scrapedGames = scrapeESPNPage('nfl',year,url)
-        if scrapedGames != None:
-            for game in scrapedGames:
-                game[3] = "Conference Championships"
-            games += scrapedGames
-        #Pro bowl
-        url = "http://www.espn.com/nfl/schedule/_/week/4/year/"+str(year)
-        scrapedGames = scrapeESPNPage('nfl',year,url)
-        if scrapedGames != None:
-            for game in scrapedGames:
-                game[3] = "Pro Bowl"
-            games += scrapedGames
-        #super bowl
-        url = "http://www.espn.com/nfl/schedule/_/year/"+str(year)
-        scrapedGames = scrapeESPNPage('nfl',year,url)
-        if scrapedGames != None:
-            #change pretty dates
-            for game in scrapedGames:
-                game[3] = "Super Bowl"
-            games += scrapedGames
+        postseasonGames = zip(["http://www.espn.com/nfl/schedule/_/week/"+str(i)+"/year/"+str(year)+"/seasontype/3" for i in range(1,6)],
+                                ["Wild Card","Divisional Round","Conference Championships","Pro Bowl","Super Bowl"])
+        for game in postseasonGames:
+            scrapedGames = scrapeESPNPage('nfl',year,game[0])
+            import pdb; pdb.set_trace()
+            if scrapedGames != None:
+                #change pretty dates
+                for sg in scrapedGames:
+                    sg[3] = game[1]
+                games += scrapedGames
+
     #convert array of arrays into array of tuples
     games = [tuple(game) for game in games]
     return list(set(games))
