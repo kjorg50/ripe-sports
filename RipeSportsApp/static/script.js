@@ -13,7 +13,7 @@ if (!String.prototype.format) {
 
 var googleApiReady = false;
 googleApiClientReady = function() {
-    gapi.client.setApiKey('AIzaSyCEP6Mt-yoKXgxdJ8et7HFgGSLLJKjTe-Y');
+    gapi.client.setApiKey('AIzaSyAwtHoumtgEEHORtGd1ONzz5uLWzm7ytBQ');
     gapi.client.load('youtube', 'v3', function() {
         googleApiReady = true;
     });

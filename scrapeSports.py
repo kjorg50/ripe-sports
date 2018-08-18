@@ -155,7 +155,6 @@ def getNFLGames(startYear,endYear):
                                 ["Wild Card","Divisional Round","Conference Championships","Pro Bowl","Super Bowl"])
         for game in postseasonGames:
             scrapedGames = scrapeESPNPage('nfl',year,game[0])
-            import pdb; pdb.set_trace()
             if scrapedGames != None:
                 #change pretty dates
                 for sg in scrapedGames:
