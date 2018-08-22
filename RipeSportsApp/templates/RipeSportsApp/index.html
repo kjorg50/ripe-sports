@@ -1,7 +1,7 @@
 {% extends "RipeSportsApp/base.html" %}
 {% block content %}
 {%verbatim%}
-<div ng-controller="indexCtrl">
+<div ng-controller="indexCtrl" >
     <nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse fixed-top">
 
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -12,13 +12,13 @@
         </button>
         <div class="collapse navbar-collapse" id='headerCollapseableDiv'>
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
+                <li class="nav-item" id='mlb-tab'>
                     <a href="#" class="nav-link" role="button" ng-click="setLeague('mlb')">Baseball</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id='nba-tab'>
                     <a href="#" class="nav-link" role="button" ng-click="setLeague('nba')">Basketball</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id='nfl-tab'>
                     <a href="#" class="nav-link" role="button" ng-click="setLeague('nfl')">Football</a>
                 </li>
             </ul>
@@ -36,6 +36,7 @@
         <!-- /.navbar-collapse -->
 
     </nav>
+    <h2>{{title}}</h2>
     <div ng-show="showPlayer">
         <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
         <div id="player" ></div>
@@ -53,7 +54,7 @@
         You might just have to watch the highlight on youtube: <a target="_blank" ng-href="{{vidUrl}}">Go there now</a>
     </div>
 
-    <label for="date" ng-show="league!='nfl'">Games for Date</label>
+    <label for="date" ng-show="league!='nfl'">Search by Date:</label>
     <input name="date" type="date" ng-model="date" ng-show="league!='nfl'">
     <button ng-click="loadGamesByDate(league,date)" ng-show="league!='nfl'">Go</button>
 

@@ -158,9 +158,9 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
         }
 
     var init = function() {
-        $scope.setLeague('nba')
+        $scope.setLeague('mlb')
         $scope.weeks = ['Preseason Week 1', 'Preseason Week 2', 'Preseason Week 3', 'Preseason Week 4', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10', 'Week 11', 'Week 12', 'Week 13', 'Week 14', 'Week 15', 'Week 16', 'Week 17', 'Wild Card', 'Divisional Round', 'Conference Championships', 'Pro Bowl', 'Super Bowl']
-        $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        $scope.years = [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018]
         $scope.embeddable = true
         $scope.showYoutubeBackupLink = false
     }
@@ -391,17 +391,26 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
     }
 
     $scope.setLeague = function(league){
-        $scope.league = league
         $http({
             url: "/recentgames/",
             method: 'POST',
-            data: { 'league':$scope.league,
+            data: { 'league':league,
                     'numGames':500}
         }).then(function success(response){
+            //deactivate previous league tab
+            var tabId = '#'+$scope.league+"-tab"
+            var tab = angular.element(document.querySelector(tabId))
+            tab.removeClass('active');
+            //activate current league
+            tabId = '#'+league+"-tab"
+            tab = angular.element(document.querySelector(tabId))
+            tab.addClass('active');
+            $scope.title = "Recent " + league.toUpperCase() + " Games"
             //Load searchable array of games as strings
             $scope.recentGames = searchableGames(response.data)
             $scope.searchbarGames = Object.keys($scope.recentGames)
             $scope.games = response.data.slice(0,20)
+            $scope.league = league
         },function error(){
             console.log("No game data found :(")
         })
@@ -417,6 +426,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
             data: { 'league':league,
                     'date':formattedDate}
         }).then(function success(response){
+            $scope.title = "Games on " + formattedDate
             $scope.games = response.data
         },function error(){
             console.log("No game data found :(")
@@ -432,6 +442,7 @@ app.controller('indexCtrl', ['$scope', '$http', '$location', '$window', '$q', '$
                     'week':week,
                     'year':year}
         }).then(function success(response){
+            $scope.title = week + " " + year + " Games"
             $scope.games = response.data
         },function error(){
             console.log("No game data found :(")
