@@ -41,6 +41,6 @@ def getRecentGames(request):
         numGames = postData.get("numGames")
         today = date.today()
         #get last <numGames> games played
-        games = list(Game.objects.filter(league=league, date__lte=today).order_by('-date').values('homeTeam', 'awayTeam', 'prettyDate','date')[:numGames])
+        games = list(Game.objects.filter(league=league, date__lt=today).order_by('-date').values('homeTeam', 'awayTeam', 'prettyDate','date')[:numGames])
         #Special django serializer needed for serializing objects
         return HttpResponse(json.dumps(games, cls=DjangoJSONEncoder),content_type='application/json')
