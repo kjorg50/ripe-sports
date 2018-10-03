@@ -35,7 +35,7 @@ scraperSettings = {
 
 def insertGames(games):
     query = "INSERT INTO `RipeSportsApp_game` (`homeTeam`,`awayTeam`,`league`,`prettyDate`,`date`) \
-             VALUES(%s,%s,%s,%s,%s)"
+             VALUES(%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE id=id"
     conn = pymysql.connect(host=HOST,
                            database=DATABASE,
                            user=USER,
