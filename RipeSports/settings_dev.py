@@ -25,7 +25,7 @@ SECRET_KEY = 'tv#m#bd_kvl-vwjp!5y+i51#@a-&*%2r&$40-d+knvv-*q+le3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['erictaba.serveo.net']
 
 
 # Application definition
